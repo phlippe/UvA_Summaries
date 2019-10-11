@@ -1,0 +1,23 @@
+\section{Probability Theory}
+\subsection{Multivariate Gaussian}
+$$\mathcal{N}\left(\bm{x}|\bm{\mu}, \bm{\Sigma}\right) = \frac{1}{\left(2\pi\right)^{D/2} \cdot |\bm{\Sigma}|^{1/2}}\cdot \exp\left(-\frac{1}{2}\left(\bm{x}-\bm{\mu}\right)^T\bm{\Sigma}^{-1}\left(\bm{x}-\bm{\mu}\right)\right)$$
+
+$$\frac{\partial}{\partial \bm{\mu}}\mathcal{N}\left(\bm{x}|\bm{\mu}, \bm{\Sigma}\right)  = \mathcal{N}\left(\bm{x}|\bm{\mu}, \bm{\Sigma}\right) \left(\bm{x}-\bm{\mu}_k\right)^T\bm{\Sigma}^{-1}$$
+
+% $$\frac{\partial}{\partial \bm{\Sigma}}\mathcal{N}\left(\bm{x}|\bm{\mu}, \bm{\Sigma}\right)  = ...$$
+
+\subsection{Rules of probability}
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{c|cc}
+		& \textbf{Discrete} & \textbf{Continuous}\\
+		\hline
+		\textbf{Additivity} & $p(X\in A) = \sum\limits_{x\in A}p(x)$ & $p\left(x\in (a,b)\right) = \int\limits_{a}^{b}p(x)dx$\\[10pt]
+		\textbf{Positivity} & $0 \leq p(x)\leq 1$ & $0 \leq p(x) \not\leq 1$\\[10pt]
+		\textbf{Normalization} & $\sum_{x} p(x) = 1$ & $\int_{\chi} p(x)dx = 1$\\[10pt]
+		\textbf{Sum Rule} & $p(x) = \sum\limits_{y\in\mathcal{Y}} p(x,y)$ & $p(x)=\int\limits p(x,y)dy$\\[10pt]
+		\textbf{Product Rule} & $p(x,y) = p(x|y)p(y)$ & $p(x,y) = p(x|y)p(y)$
+	\end{tabular}
+\end{table}
+\subsection{Bayes Rule}
+$$\underbrace{p(x|y)}_{\text{posterior}} = \frac{\overbrace{p(y|x)}^{\text{likelihood}} \overbrace{p(x)}^{\text{prior}}}{\underbrace{p(y)}_{\text{evidence}}} = \frac{p(y|x) p(x)}{\int p(y|x) p(x)dx} \text{\hspace{5mm}or\hspace{5mm}} \frac{p(y|x) p(x)}{\sum p(y|x) p(x)}$$

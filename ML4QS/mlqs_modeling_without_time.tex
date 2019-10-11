@@ -1,0 +1,21 @@
+\section{Predictive Modeling without Notion of Time}
+\begin{itemize}
+	\item Any predictor that does not explicitly take time into account (except the temporal features from time/frequency domain etc.)
+	\item Different learning setups possible
+	\begin{itemize}
+		\item \textit{Individual}: train and test on a single user
+		\item \textit{Population - unknown user}: train on a set of users, test on a different set of users
+		\item \textit{Population - unseen data}: train on a set of users, test on the same users but different data
+	\end{itemize}
+\end{itemize}
+\subsection{Preventing overfitting}
+\begin{itemize}
+	\item One big issue in the context of QS is that algorithms can easily overfit. This can be due to the big amount of features, the noise contained in them, and the usually small datasets we have
+	\item \textbf{Feature selection}
+	\begin{itemize}
+		\item To prevent the models to overfit on not useful features, we can reduce the number of features to the essential ones
+		\item \textit{Forward selection}: start with empty set, and iteratively add most predictive feature. At every iteration, we need to run a model on the previously added features plus any of the other features left. Stop when accuracy does not improve significantly anymore
+		\item \textit{Backward selection}: start with all features, and iteratively remove the least predictive feature. Similar to forward selection, just doing the whole algorithm reversed.
+	\end{itemize}
+	\item \textbf{Regularization}: add a term to the error function to punish more for more complex models. Examples include L1/L2 regularization for NN, points per leaf for decision trees, etc.
+\end{itemize}

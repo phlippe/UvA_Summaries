@@ -1,0 +1,96 @@
+\section{Handling Sensory Noise}
+\label{sec:chapter_3_sensory_noise}
+\subsection{Outlier Detection}
+\begin{itemize}
+	\item ``\textit{An outlier is an observation point that is distant from other observations}''
+	\item Outliers can be caused by measurement errors, or variability of the data (e.g. very high heart rate due to pushing someone's limits)
+	\item Outliers can be detected by either \textit{domain knowledge} (known in what range to expect value, e.g. heart rate should not be over 220), or without by filtering noise. We distinguish between two ways for doing so:
+	\begin{itemize}
+		\item \textit{Distribution-based}: assume a certain distribution of the data, and remove all points with a likelihood lower than a certain threshold
+		\item \textit{Distance-based}: focus on the distance between data points, and mark those as outliers which are far apart
+	\end{itemize}
+	\item After detecting the outliers, we can replace them with \textit{unknown} values/value missing tag. 
+\end{itemize}
+\subsubsection{Distribution-based outlier detection}
+\begin{itemize}
+	\item \textbf{Chauvenet's criterion}: assume a normal distribution for a single attribute
+	\begin{itemize}
+		\item We can fit a normal distribution by calculating the mean and stddev of the data
+		\item For each point, calculate the probability $P(X\leq x_{i}^{j})=\int_{-\infty}^{x_{i}^{j}} \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(u-\mu)^2}{2\sigma^2}} \partial u$\\ (instance $i$ from $j$th attribute)
+		\item A point is an outlier if:
+		$$P(X\leq x_{i}^{j}) < \frac{1}{c\cdot N} \hspace{3mm}\text{or}\hspace{3mm} \left(1-P(X\leq x_{i}^{j})\right) < \frac{1}{c\cdot N}$$
+		Thus, the probability of a point being an outlier decreases with the number of observations for this attribute (as the likelihood increases to observe rare values)
+		\item Mostly $c=2$ is chosen.
+	\end{itemize}
+	\item \textbf{Mixture models}: assume the data to be described by $K$ normal distributions $p(x)=\sum_{k=1}^{K}\pi_k \mathcal{N}\left(x|\mu_k, \sigma_k\right)$
+	\begin{itemize}
+		\item Use EM algorithm to optimize maximum-likelihood of the data
+		\item A point is considered as an outlier if it has a lower probability than a certain threshold
+		\item Both threshold and number of distributions $K$ is a hyperparameter to optimize
+	\end{itemize}
+\end{itemize}
+\subsubsection{Distance-based outlier detection}
+\begin{itemize}
+	\item Outlier detection based on a distance metric $d(x_{i}^{j}, x_{k}^{j})$ (as e.g. Euclidean distance) which can also be across multiple attributes
+	\item \textbf{Simple distance-based approach}:
+	\begin{itemize}
+		\item Call two points close if they are within a distance $d_{\text{min}}$ (hyperparameter)
+		\item A point $x_{i}^{j}$ is considered as an outlier if:
+		$$\frac{\sum_{n=1}^{N} \mathbbm{1}\left(d(x_{i}^{j}, x_{n}^{j}) > d_{\text{min}}\right)}{N} > f_{\text{min}}$$
+		Hence, we look if the number of points within the range of $d_{\text{min}}$ are at least $1-f_{\text{min}}$.
+		\item Example values of hyperparameters: $d_{\text{min}}=0.1, f_{\text{min}}=0.99$
+		\item Not working if we have multi-modal distribution (does not take local densities into account)
+	\end{itemize}
+	\item \textbf{Local outlier factor}: use local densities to determine outliers.
+	\begin{itemize}
+		\item Define $k_{\text{dist}}$ for point $x_{i}$ as the maximum distance in set of its $k$ closest neighbors. 
+		\item The reachability distance of $x_{i}$ \textbf{from} $x$ is defined as:
+		$$k_{\text{reach\_dist}}(x_i, x) = \max\left(k_{\text{dist}}(x), d(x, x_i)\right)$$
+		Note that this distance is \textit{not} symmetric as it uses the $k$th nearest neighbors of a point.\\
+		Furthermore, this operation is only done to reduce the influence of very close-by points. 
+		\item The local reachability distance of a point is defined by:
+		$$k_{\text{lrd}}\left(x_{i}\right) = \frac{\left|k_{\text{distnh}}\left(x_{i}\right)\right| }{\sum\limits_{x\in k_{\text{distnh}}\left(x_{i}\right)} k_{\text{reach\_dist}}\left(x_i, x\right)}$$
+		Hence, it is high if a point is very close to others.
+		\item Outlier if neighbor points have much higher local reachability points than actual point:
+		$$k_{\text{lof}}\left(x_{i}\right) = \frac{\sum\limits_{x\in k_{\text{distnh}}\left(x_{i}\right)} k_{\text{lrd}}\left(x\right)}{\left|k_{\text{distnh}}\left(x_{i}\right)\right| \cdot k_{\text{lrd}}\left(x_{i}\right)}$$
+	\end{itemize}
+\end{itemize}
+\subsection{Missing value imputation}
+\begin{itemize}
+	\item Due to outliers or measuring errors, we might have missing values in our dataset
+	\item We can use simple methods like replace it by the mean or median of the other observed data, or also use more advanced methods that take the values of the other attributes at this observation into account, or a local time window.
+	\begin{itemize}
+		\item Example for the latter: \textbf{interpolation} $x_{i}^{j} = x_{i-k}^{j} + k \cdot \frac{x_{i+l}^{j} - x_{i-k}^{j}}{l+k}$
+	\end{itemize}
+\end{itemize}
+\subsubsection{Kalman Filter}
+\begin{itemize}
+	\item Combine outlier detection and imputation into a single model
+	\item Therefore, we keep a latent state $s_t$, for which $x_t$ are the observations in this states (Kalman filter relates $x_t$ and $s_t$)
+	\item The next value of a state is defined as: $$s_t = F_t s_{t-1} + B_t u_t + w_t$$ where $u_t$ is a control input state (as e.g. sending a message), $w_t$ is white noise, and $F_t$ and $B_t$ are learned matrices
+	\item The measurements associated with $s_t$ can be predicted by: $$x_t = H_t s_t + v_t$$ where $v_t$ is again white noise.
+	\item We can predict the next state (without noise) by $\hat{s}_{t|t-1} = F_t \hat{s}_{t-1|t-1} + B_t u_t$
+	\item The error at time $t$ compared to the observations $x_t$ is then $e_t = x_t - H^T \hat{s}_{t|t-1}$
+	\begin{itemize}
+		\item If we observe (after training/modeling) a high error, we can assume a value to be an outlier, and replace it with the prediction of the Kalman Filter.
+	\end{itemize}
+	\item Given this error, we can update our prediction accordingly: $\hat{s}_{t|t} = \hat{s}_{t|t-1} + K_t e_t$ where $K_t$ takes the expected prediction error into account (based on the white noise $w_t$ and $v_t$)
+	% \item Next, we can estimate our prediction error of $\hat{s}_{t|t-1}$ by $P_{t|t-1}=\mathbb{E}\left[\left(s_t - \hat{s}_{t|t-1}\right)\left(s_t - \hat{s}_{t|t-1}\right)^T\right]$
+\end{itemize}
+\subsection{Transforming the Data}
+\begin{itemize}
+	\item Transform data to extract most useful data, and get rid of remaining noise
+	\item Different approaches can be used
+	\item \textbf{Lowpass filter}: filter out high-frequent noise
+	\begin{itemize}
+		\item We assume that our signal has a certain periodicity, but we are only interested in certain parts of the frequency band (noise is mostly very high-frequent)
+		\item The low-pass filter can remove those by weighting each periodicity by its frequency:
+		$$|G(f)|^2 = \frac{1}{1+\left(f/f_c\right)^{2n}}$$
+		with $|G(f)|$ as the magnitude, $f_c$ is the cutoff frequency (magnitude halved), and $n$ the order of the filter
+	\end{itemize}
+	\item \textbf{Principal Component Analysis}: find components that explain most of the variance in the data
+	\begin{itemize}
+		\item Select number of components based on the explained variance. Other, low-variance components are removed to reduce noise 
+		\item Problem: we loose insight in the data because the components are not easily interpretable anymore
+	\end{itemize}
+\end{itemize}

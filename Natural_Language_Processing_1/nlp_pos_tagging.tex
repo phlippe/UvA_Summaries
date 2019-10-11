@@ -1,0 +1,97 @@
+\section{Language models and part-of-speech tagging}
+\subsection{Probabilistic language modeling}
+\begin{itemize}
+	\item The Naive Bayes approach considers words as independent. However, we can also model word sequences using statistical techniques (based on context/semantic and syntax)
+	\item \textbf{Corpus}: text collected for some purpose (i.e. movie reviews)
+	\begin{itemize}
+		\item A corpus is \textit{balanced} if it represents different genres (types of text/domain)
+		\item A \textit{tagged} corpus has annotations regarding the POS tags (mostly POS tags are learned unsupervised, but with this data we enable supervised training methods)
+	\end{itemize}
+	\item Use of language modeling
+	\begin{itemize}
+		\item In speech recognition, it is hard to distinguish between words that sound similar. Thus, language modeling is used to rank the hypothesis of the recognizing system to make an estimation what phrase is most likely being said
+		\item Language modeling can also be used for word prediction, text entry, spelling correction, ...
+	\end{itemize}
+\end{itemize}
+\subsubsection{N-gram models}
+\begin{itemize}
+	\item Modeling a sequence of $n$ words
+	\item \textbf{Bigram} ($n=2$): 
+	\begin{itemize}
+		\item use only previous word $\Rightarrow$ $p(w_n|w_{n-1})$
+		\item Probability of a sequence can be expressed by $p(w_1,...w_N)=\prod\limits_{n=1}^{N} p(w_n|w_{n-1})$
+		\item Still, we assume that words with distance of more than 1 are independent
+		\item Estimating the probabilities by the maximum likelihood solution: $$p(w_n|w_{n-1})=\frac{c(w_n, w_{n-1})}{\sum_{w_k} c(w_k, w_{n-1})}=\frac{c(w_n, w_{n-1})}{c(w_{n-1})}$$
+		Thus, we normalize the counts over the next word $w_{n-1}$
+	\end{itemize}
+	\item \textbf{Trigram} ($n=3$):
+	\begin{itemize}
+		\item The probability of a word is based on the two previous words $\Rightarrow$ $p(w_n|w_{n-1},w_{n-2})$
+		\item Again, the probability of the sequence is $p(w_1,...w_N)=\prod\limits_{n=1}^{N} p(w_n|w_{n-1},w_{n-2})$
+	\end{itemize}
+	\item Problems with sparse data
+	\begin{itemize}
+		\item \textbf{Smoothing}: for smoothing, we add a small extra probability for rare and unseen events to prevent probabilities of zero. E.g. for bigram:
+		$$p(w_n|w_{n-1})=\frac{c(w_n, w_{n-1}) + \kappa}{c(w_{n-1}) + |V|\cdot \kappa }$$
+		Simple to implement, but only suitable if having few unseen events (high $n$-gram have a lot)
+		\item \textbf{Backoff}: If we have good evidence of a long phrase, we use a high $n$-gram model (for example trigram). Otherwise, if phrase was not seen yet, we go to the next smaller model (here bigram) and checker its probability. If also not known, go deeper until you reach unigram.
+		\item \textbf{Interpolation}: combine the probability estimations of all models. For example we can use linear interpolation where we weight every model with a parameter:
+		$$p(w_n|w_{n-1},w_{n-2}) = \lambda_1 p(w_n) + \lambda_2 p(w_n|w_{n-1}) + \lambda_3 p(w_n|w_{n-1}, w_{n-2})$$
+		The parameters $\lambda_i$ need to sum up to 1 and are optimized on small held-out training subset. 
+		\item \textbf{Unknown word tag}: using a unknown word tag which is also used in the training set. Replace all unknown words in the (test) text by this tag
+	\end{itemize}
+	\item Another limitation of $n$-gram models are long-term dependencies as these cannot be captured efficiently
+	\item \textit{Evaluation} of $n$-gram models
+	\begin{itemize}
+		\item \textbf{Intrinsic evaluation}: evaluate directly on test set designed for the task with a metric
+		\begin{itemize}
+			\item A suitable metric is for example \textit{perplexity} which is the inverse probability of the test dataset normalized by number of words $N$:
+			$$PP(W) = \left(p(w_1,...,w_N)\right)^{-1/N}$$
+			\item For bigram, this would be $PP(W)=\left(\prod_{n=1}^{N}p(w_n|w_{n-1})\right)^{-1/N}$
+			\item The goal is to minimize perplexity (lower perplexity indicates better model)
+			\item However, perplexity strongly relies on the similarity of training and test dataset and is therefore not comparable across different datasets
+		\end{itemize}
+		\item \textbf{Extrinsic evaluation}: evaluation in the context of external task, i.e. speech recognition or word prediction
+		\begin{itemize}
+			\item Better, but very time consuming
+			\item Hybrid approaches compare own models by perplexity, and apply the best model in extrinsic environment (external task)
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+\subsection{Part-of-speech tagging}
+\begin{itemize}
+	\item Tag every word by what king of speech it is (verb, noun, ... $\Rightarrow$ ambiguity)
+	\item The tags are taken from a tagset which uses standardized codes for fine-grained POS
+	\item \textit{Benefits} of POS tagging
+	\begin{itemize}
+		\item First step towards syntactic analysis (is very fast, but simpler than full syntax parsing)
+		\item POS tags can be useful features for application
+	\end{itemize}
+	\item Problem of ambiguity: most high-frequency words have more than one POS tag. Language with rich morphology (significant affixes) tend to have less as the distinguish affixes better
+\end{itemize}
+\subsubsection{Tagging strategies}
+\begin{itemize}
+	\item Simplest strategy: assign to each words its most common tag (also called unigram tagging). Already gives a strong baseline
+	\item \textbf{Hidden Marcov models}
+	\begin{enumerate}
+		\item Start with untagged text
+		\item Assign to the words all their possible POS tags
+		\item Find the most probable sequences of tags given sequences of words
+		$$\hat{t}^{n} = \arg\max_{t^{n}} p(t^{n} | w^{n}) = \arg\max_{t^{n}} p(w^{n}|t^{n})\cdot p(t^{n}) $$
+	\end{enumerate}
+	\item If we apply for example bigram in this model, we get:
+	\begin{equation*}
+	\begin{split}
+	p(t^{n}) & \approx \prod_{i=1}^{n} p(t_i | t_{i-1})\\
+	p(w^{n}|t^{n}) & \approx \prod_{i=1}^{n} p(w_i | t_i)\\
+	\hat{t}^{n} & = \arg\max_{t^{n}} \prod_{i=1}^{n}p(w_i | t_i)p(t_i | t_{i-1})
+	\end{split}
+	\end{equation*}
+	\item Actual systems use trigrams. Smoothing and backoff are important (fewer unknown open class words)
+	\item Evaluation by percentage of correct tags (but using most common tag already gives 90\% accuracy. With trigram about 97\%)
+	\item Common errors
+	\begin{itemize}
+		\item Difference between country ``Turkey'' and bird ``turkey'' (it decides based on whether an \textit{a} is in front of turkey or not)
+		\item Because of smoothing, we can get for the phrase ``have hope'' that both words are verbs although hope has no past tense which is antigrammatical!
+	\end{itemize}
+\end{itemize}

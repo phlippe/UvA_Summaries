@@ -1,0 +1,60 @@
+\documentclass[a4paper]{article} 
+\addtolength{\hoffset}{-2.25cm}
+\addtolength{\textwidth}{4.5cm}
+\addtolength{\voffset}{-3.25cm}
+\addtolength{\textheight}{5cm}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0in}
+
+\usepackage{blindtext} % Package to generate dummy text
+\usepackage{charter} % Use the Charter font
+\usepackage[utf8]{inputenc} % Use UTF-8 encoding
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage[english]{babel} % Language hyphenation and typographical rules
+\usepackage{amsthm, amsmath, amssymb} % Mathematical typesetting
+\usepackage{float} % Improved interface for floating objects
+\usepackage[final, colorlinks = true, 
+linkcolor = black, 
+citecolor = black]{hyperref} % For hyperlinks in the PDF
+\usepackage{graphicx, multicol} % Enhanced support for graphics
+\usepackage{xcolor} % Driver-independent color extensions
+\usepackage{marvosym, wasysym} % More symbols
+\usepackage{rotating} % Rotation tools
+\usepackage{subcaption}
+\usepackage{censor} % Facilities for controlling restricted text
+\newcommand{\note}[1]{\marginpar{\scriptsize \textcolor{red}{#1}}} % Enables comments in red on margin
+\usepackage{bm}
+\usepackage{blkarray}
+\usepackage{enumitem}
+\usepackage{pgfplots}
+\definecolor{colkeyword}{rgb}{0,0.4,0}
+\definecolor{colname}{rgb}{0.4,0.4,0}
+\definecolor{coltype}{rgb}{0.4,0,0.4}
+\definecolor{coloperators}{rgb}{0,0,1.0}
+\definecolor{colscopes}{rgb}{0.4,0,0}
+
+\setcounter{tocdepth}{2}
+% Title Page
+\title{Summary Natural Language Processing 1}
+\author{Phillip Lippe}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\input{nlp_morphology.tex}
+\input{nlp_pos_tagging.tex}
+\input{nlp_formal_grammars.tex}
+\input{nlp_lexical_distributional_semantics.tex}
+\input{nlp_compositional_semantic.tex}
+\input{nlp_textual_entailment_paraphrasing.tex}
+\input{nlp_dialog_modelling.tex}
+\input{nlp_summarization.tex}
+\input{nlp_translation.tex}
+\input{nlp_bayesian.tex}
+\appendix
+% \newpage
+% \input{nlp_appendix.tex}
+\end{document}

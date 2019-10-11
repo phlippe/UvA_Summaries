@@ -1,0 +1,96 @@
+\section{Predictive Modeling with Notion of Time}
+\subsection{Time Series}
+\begin{itemize}
+	\item Understanding the periodicity and trends in data in the time domain. Can be used for forecasting or control (e.g. how can we influence the trend)
+	\item Is build up by three components:
+	\begin{itemize}
+		\item \textit{Seasonality/Periodicity}: any periodic/repeating pattern over any frequency (e.g. seconds, hours or days)
+		\item \textit{Trend}: how the mean evolves over time
+		\item \textit{Irregular variations}: noise, everything left after we remove periodicity and trend
+	\end{itemize}
+	\item \textbf{Stationarity}: assumption/requirement for many algorithms applied on time series
+	\begin{itemize}
+		\item In general, stationarity means that the statistical properties of a process generating a time series do not change over time.
+		\item We call a time series stationary if trends and periodicity are removed (mean is constant), and the variance of the remaining irregular variations is constant over time
+		\item Additionally, the lagged auto correlation should be constant over time/lags $\lambda$ and close to $0$:
+		$$r_{\lambda} = \frac{\sum\limits_{t=1}^{N-\lambda} (x_t - \bar{x}) (x_{t+\lambda} - \bar{x})}{\sum\limits_{t=1}^{N}(x_t - \bar{x})^2}$$
+		It can provides clues of underlying pattern in the data, which should not be the case for stationary ones.
+		\item If a time series is not stationary, we can mostly transform it to one by removing trend, periodicity, and try to stabilize the variance
+	\end{itemize}
+\end{itemize}
+\subsubsection{Filtering and Smoothing}
+\begin{itemize}
+	\item To determine the trend of a signal, one of the simplest approaches is filtering and/or smoothing
+	\item Simplest filtering is for a window size of $\pm q$ (creates a new, filtered time series):
+	$$z_t = \sum\limits_{r=-q}^{q} a_r x_{t+r}$$
+	\item \textbf{Differencing}
+	\begin{itemize}
+		\item For removing a trend, the most effective technique is differencing (or gradient filter): $z_t = x_t - x_{t-1} = \nabla x_t$. As we expect the trend to be low-frequent, the gradient is therefore small. % Periodicity is not influenced by this filter (differentiating $\sin$ just shifts it in time). % Not 100% true because if we have \sin(0.1*x), we get 0.1 * \cos(0.1 * x). Hence, 10 times smaller
+		\item We can also apply this operator multiple times, leading to a $d$-th order differencing ($\nabla^d x_t$). For $d=2$, we get $z_t = \nabla^2 x_t = x_t - 2x_{t-1}+x_{t-2}$. A $d$-th order differencing can remove trends than can be approximated by a polynomial of order $d$ or lower.
+		\item Drawback of differencing is that the variance of the remaining time series increases. Can be improved by using a better approximation of trend than $x_{t-1}$, as for example a exponential filtered signal $e_{t} = \sum\limits_{r=-q}^{0} \frac{\alpha(1 - \alpha)^{|r|}}{2 - \alpha} x_{t+r}$ (with e.g. $\alpha=0.05$), and use that for the differencing: $z_t = x_t - e_{t}$
+		\item Still, we have to be careful as we might remove low-frequent periodicity as well ($\partial \sin(0.1\cdot x)/\partial x = 0.1 \cdot \cos(0.1 \cdot x)$ $\Rightarrow$ dampen signal by factor of 10). 
+		\item If we would want to remove periodicity, we could apply the differencing operator not on two adjacent points, but two points that are moved by 1 period as the difference between those is expected to be zero (note that we need to know/estimate the frequency for that)
+	\end{itemize}
+\end{itemize}
+\subsubsection{ARIMA}
+\begin{itemize}
+	\item ``Autoregressive Integrated Moving Average Model''
+	\item We try to estimate a model that describes the empirical data well and can be used to forecast/predict new values
+	\item For this, we learn/determine a mapping of time point $t$ to probability distribution $P_t$
+	\item In ARIMA, we assume $P_t$ to be modeled by a combination of a autoregressive process (AR), and a moving average (MA) over white noise $W_t$:
+	$$P_t = \underbrace{\phi_1 P_{t-1} + ... \phi_p P_{t-p} + W_t}_{\text{Autoregressive process}} + \underbrace{\theta_1 W_{t-1} + ... \theta_q W_{t-q}}_{\text{Moving Average}}$$
+	Note that an AR can be expressed by an infinite MA, and the other way round. But to reduce the number of parameters, both concepts are used here.
+	\item To remove the drifts of mean (trend), we apply differencing of order $d$ on $P_t$ ($V_t = \nabla^d P_t$). 
+	\item Optimization of parameters
+	\begin{itemize}
+		\item For $p$ we can look at the autocorrelation between $x_t$ and $x_{t-p}$ to find patterns
+		\item For other parameters, gridsearch with objective function as the fit to the data we have
+	\end{itemize}
+	\item Note that ARIMA does not take seasonality/periodicity into account. Hence, we either have to add it externally, remove it beforehand or model it as well (ARIMAX)
+\end{itemize}
+\subsection{Recurrent Neural Networks}
+\begin{itemize}
+	\item Unfolding for gradient calculation
+	\item \textbf{Echo State Networks}: ``cheap'' RNNs without backprop through time
+	\begin{itemize}
+		\item Three weight matrices:
+		\begin{itemize}
+			\item $\bm{W}^{\textbf{in}}$: are the weights from the input layer to the memory (or here also called \textit{reservoir}). 
+			\item $\bm{W}$: are the weights over time steps (or internally in the reservoir).
+			\item $\bm{W}^{\textbf{out}}$: specify the weights from the reservoir to the output
+		\end{itemize}
+		\item $\bm{W}^{\textbf{in}}$ and $\bm{W}$ are randomly initialized and \textbf{fixed} during training ,while $\bm{W}^{\textbf{out}}$ is learned (either by SGD or pseudo inverse)
+		\item Initialization of $\bm{W}$ need to satisfy the \textit{Echo State property} which state that the effect of a previous state should gradually decrease over time (prevent exploding values)
+		\item We can ensure this by randomly initializing a matrix, dividing by its spectral radius and (optionally) scale it down even further.
+		\item There are different initialization heuristics to optimize this process, but all underly the \textit{No Free Lunch} theorem (optimizing for one use case will make it worse for others)
+	\end{itemize}
+\end{itemize}
+\subsection{Dynamical Systems}
+\begin{itemize}
+	\item Build domain knowledge-based models that cover temporal relationships between attributes by the meas of differential equations. Furthermore, they assume a numerical state. Very simple model for velocity:
+	$$y_{vel}(t) = y_{vel}(t-1) + \gamma_1 \cdot y_{acc}(t)$$
+	\item Models still contain parameters (as $\gamma_1$ above) that can/need to be tuned
+	\item \textbf{Parameter optimization}: three main approaches
+	\begin{itemize}
+		\item \textit{Simulated Annealing}: similar to an EA with a population size of 1. 
+		\begin{itemize}
+			\item We have a single solution which we randomly initialize first. At each iteration, we take a random step, and compare the difference in score. 
+			\item If the new point is better than the old one, we replace it. Otherwise, we replace it with a probability based on the distance between the scores, and the number of steps we have already taken. 
+			\item Note that the probability decreases with number of steps. Thus, we switch from exploration in the first iterations to exploitation in the last.
+		\end{itemize}
+		\item \textit{Genetic Algorithms}: 
+		\begin{itemize}
+			\item We represent parameter values as a bit string (arbitrary number of bits per parameter, all together concatenated into one genotype), and initialize a couple of them in our population 
+			\item At each iteration, we choose a set of parents from our population (based on fitness value), and perform crossover as well as mutation on the children
+			\item Perform survivor selection, or just completely replace the old generation by the new one
+		\end{itemize}
+		\item \textit{NSGA-II}: multi-criteria optimization GA
+		\begin{itemize}
+			\item ``Non-Dominated Sorting Genetic Algorithm''
+			\item Used when multiple targets need to be optimized, and there is no fixed tradeoff between both 
+			\item Therefore, we find Pareto fronts in our population (individuals that are not Pareto dominated by any other individual in our population)
+			\item We create several Pareto fronts by iteratively creating one for our population, and then remove all individuals on it from the population, and start again
+			\item Interested in a wide spread of individuals/coverage of Pareto front $\Rightarrow$ weight individuals on the Pareto front by the distance to other points (points on the border set to infinity because they are the best for a certain objective). We use this weight for survivor selection where we iteratively add individuals until we have enough for a new population. Note that we of course prioritize the individuals that are on a earlier Pareto front
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
