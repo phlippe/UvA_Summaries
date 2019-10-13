@@ -1,0 +1,241 @@
+\section{Variational Expectation Maximization}
+
+\begin{itemize}
+	\item The expectation maximization algorithm can be viewed from a different angle where we focus on the latent variables $z_n$
+	\item For each observed data point $\bm{x}_n$, we create a latent variable $\bm{z}_n$ which \textit{explains} the observation by our underlying model
+	\begin{itemize}
+		\item For example, in case we have a mixture model, the latent variable $z_n$ indicates from which component $\bm{x}_n$ was created
+		\item We create the model in such a way that $p(X,Z|\theta)$ can be easily calculated
+	\end{itemize}
+	\item As a graphical model, we can represent it as follows:
+	\begin{figure}[ht!]
+		\centering
+		\tikz{ %
+			\node[obs] (x) {$\bm{x}_n$} ; %
+			\node[latent, above=of x] (z) {$\bm{z}_n$} ; %
+			
+			\edge{z}{x};
+			
+			\plate{xz}{(x)(z)}{$n=1,...,N$};
+			\node[const, left=of x] (theta) {$\bm{\theta}$};
+			\edge{theta}{x};
+		}
+	\end{figure}
+	\item The objective we want to optimize is the log-likelihood $$\ln p(\bm{X}|\bm{\theta}) = \ln \left\{\sum_{\bm{Z}}p(\bm{X}, \bm{Z}|\bm{\theta})\right\}$$
+	\item However, note that in the standard setting, we are not given $\bm{Z}$ so that we need to work with the posterior $p(\bm{Z}|\bm{X},\bm{\theta})$ as knowledge over latent variables. Hence, we calculate the log-likelihood under expectation of our posterior:
+	$$\E_{\bm{Z}\sim p(\bm{Z}|\bm{X},\bm{\theta})}\left[\ln p(\bm{X}, \bm{Z}|\bm{\theta})\right] = \sum_{\bm{Z}} p(\bm{Z}|\bm{X},\bm{\theta}) \ln p(\bm{X}, \bm{Z}|\bm{\theta})$$
+	\item As the optimization problem for the posterior and the parameters has often no analytical closed-form solution, we optimize both sequentially, leading to the general idea of the EM algorithm
+	\begin{description}
+		\item[E-step] Find the posterior distribution $p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}})$ where $\bm{\theta}^{\text{old}}$ means that we fix the other parameters
+		\item[M-step] Optimize the log-likelihood with respect to parameters $\bm{\theta}$ while keeping the posterior fixed
+		$$\bm{\theta}^{\text{new}} = \arg\max_{\bm{\theta}} \mathcal{Q}(\bm{\theta}, \bm{\theta}^{\text{old}}) = \arg\max_{\bm{\theta}} \sum_{\bm{Z}} p(\bm{Z}|\bm{X},\bm{\theta}) \ln p(\bm{X}, \bm{Z}|\bm{\theta})$$
+	\end{description}
+	\item In case we want to find the MAP instead of the MLE, we simply have to add the prior term $\ln p(\bm{\theta})$ to $\mathcal{Q}(\bm{\theta}, \bm{\theta}^{\text{old}})$ in the M-step 
+\end{itemize}
+\subsection{Generalizing EM}
+\begin{itemize}
+	\item We can further generalize the EM algorithm to a form, which was originally used to prove its optimization objective. 
+	\item However, we can also look at it from a different perspective. It might be sometimes the case, that the posterior $p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}})$ is hard to determine. Instead, we can introduce an approximation $q(\bm{Z})$ for which we can choose the form ourselves (e.g. Gaussian, or softmax distribution over discrete states, etc.)
+	\item Using this approximation, we can calculate the log likelihood by:
+	\begin{equation*}
+		\begin{split}
+			\ln p(\bm{X}|\bm{\theta}) & = \sum_{n=1}^{N} \sum_{\bm{z}_n} q(\bm{z}_n)\ln \frac{p(\bm{x}_n, \bm{z}_n|\bm{\theta})}{p(\bm{z}_n|\bm{x}_n, \bm{\theta})}\\
+			 & = \sum_{n=1}^{N} \sum_{\bm{z}_n} q(\bm{z}_n)\ln \frac{p(\bm{x}_n, \bm{z}_n|\bm{\theta})}{q(\bm{z}_n)}\frac{q(\bm{z}_n)}{p(\bm{z}_n|\bm{x}_n, \bm{\theta})}\\
+			 & = \sum_{n=1}^{N} \left[\E_{q_n}\left[\log p(\bm{x}_n, \bm{z}_n|\bm{\theta})\right] + H(q_n) + \underbrace{\text{KL}\left(q_n(\bm{z}_n)||p(\bm{z}_n|\bm{x}_n, \bm{\theta})\right)}_{\geq 0}\right]\\
+		\end{split}
+	\end{equation*}
+	\item We can define an ELBO for our objective function:
+	$$\ln p(\bm{X}|\bm{\theta}) = \mathcal{L}(\bm{\theta}) \geq  \sum_{n=1}^{N} \left[\E_{q_n}\left[\log p(\bm{x}_n, \bm{z}_n|\bm{\theta})\right] + H(q_n)\right] = \mathcal{L}(\bm{\theta}, q)$$
+	\item Hence, for any set of distributions $\left\{q_n(\bm{z}_n)\right\}_{n=1}^{N}$, we can define a lower bound optimization objective $\mathcal{L}(\bm{\theta}, q)$, which is equal to $\mathcal{L}(\bm{\theta})$ iff $q_n(\bm{z}_n)=p(\bm{z}_n\vert \bm{x}_n, \bm{\theta})$
+	\item During the E-step, we optimize $\mathcal{L}(\bm{\theta}, q)=\ln p(\bm{X}|\bm{\theta})-\text{KL}(q||p)$ regarding $q$. As $\ln p(\bm{X}|\bm{\theta})$ is independent of $q$, we minimize the KL-divergence, meaning that we push $q_n(\bm{z}_n)$ to be similar to $p(\bm{z}_n\vert \bm{x}_n, \bm{\theta})$
+	\item In the M-step, we increase $p(\bm{X}|\bm{\theta})$ by optimizing the parameters $\bm{\theta}$. Note that as $q$ is fixed in this step, the KL-divergence will increase as well, due to $q$ being now sub-optimal for the new parameters. Hence, we perform another E-step again a.s.o.
+	\item Keep in mind that when optimizing $\mathcal{L}(\bm{\theta}, q)$, we need to add Lagrangian for the constraint that $q_n$ is a valid PDF:
+	$$\tilde{\mathcal{L}}\bm{\theta}, q) = \mathcal{L}(\bm{\theta}, q) + \sum_{n=1}^{N} \lambda_n \left(\sum_{\bm{z}_n} q_n(\bm{z}_n) - 1\right)$$
+	Depending on our model, we might need to add additional Lagrangian to $\tilde{\mathcal{L}}\bm{\theta}, q)$ (e.g. over $\bm{\pi}$ in mixture models)
+	\item In summary, the variational EM algorithm can be summarized as follows:
+	
+	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Variational EM algorithm]
+		\begin{enumerate}
+			\item Choose initial $\bm{\theta}^{(0)}$
+			\item Iterate until $\Delta \bm{\theta}^{(t)} < \epsilon$
+			\begin{enumerate}
+				\item \textbf{E-step}: Given \underline{fixed} $\bm{\theta}^{(t)}$,
+				\begin{itemize}
+					\item If the posterior can be determined, evaluate $q_n^{(t)}(\bm{z}_n) = p(\bm{z}_n|\bm{x}_n, \bm{\theta}^{(t)})$
+					\item Otherwise, use Variational EM by increasing $\tilde{\mathcal{L}}(\bm{\theta}^{(t)}, q)$ over $q$, e.g. gradient ascend
+				\end{itemize}
+				\item \textbf{M-step}: Given \underline{fixed} $q^{(t)}$,
+				\begin{itemize}
+					\item Solve, if possible, $\bm{\theta}^{(t+1)} = \arg\max_{\bm{\theta}} \tilde{\mathcal{L}}(\bm{\theta}, q^{(t)})$ % \sum_{n=1}^{N} \E_{q_n}\left[\log p(\bm{x}_n, \bm{z}_n|\bm{\theta})\right]
+					\item Otherwise, increase $\tilde{\mathcal{L}}(\bm{\theta}, q^{(t)})$ over $\bm{\theta}$, e.g. gradient ascend
+				\end{itemize}
+			\end{enumerate}
+		\end{enumerate}
+	\end{tcolorbox}
+\end{itemize}
+\subsubsection{Example: Mixture of multivariate Bernoulli's}
+\begin{itemize}
+	\item As an example, we outline the EM algorithm to optimize a mixture of multivariate Bernoulli's here. Our model distribution looks like:
+	$$p(\bm{x}_n|\bm{\mu}, \bm{\pi}) = \sum_{k=1}^{K} \pi_k \prod_{i=1}^{D} \mu_{ki}^{x_{ni}} (1- \mu_{ki})^{1-x_{ni}} \hspace{4mm}\text{where}\hspace{2mm} \sum_{k=1}^{K}\pi_k = 1$$
+	\item Optimizing the parameters without the EM algorithm does not has a closed-form solution because of a sum in the log:
+	$$\log p(\bm{X}|\bm{\mu},\bm{\pi}) = \sum_{n=1}^{N} \log \sum_{z_n=1}^{K} \pi_{z_n} p(\bm{x}_n|\bm{\mu_{z_n}})$$
+	\item Our EM objective is instead:
+	\begin{equation*}
+		\begin{split}
+			\mathcal{L}(q,\bm{\mu}, \bm{\pi}) & = \sum_{n=1}^{N} \sum_{\bm{z}_n} q_n(\bm{z}_n) \left\{ \left(\log \pi_{z_n} + \sum_{i=1}^{D}\left[x_{ni}\log \mu_{z_n,i} + (1 - x_{ni})\log (1 - \mu_{z_n,i})\right]\right)- \log q_n(\bm{z}_n)\right\}\\
+		\end{split}
+	\end{equation*}
+	\begin{equation*}
+		\begin{split}
+			\tilde{\mathcal{L}}(q,\bm{\mu}, \bm{\pi}, \lambda, \left\{\lambda_n\right\}) & = \mathcal{L}(q,\bm{\mu}, \bm{\pi}) + \lambda \left(\sum_{k=1}^{K} \pi_k - 1\right) + \sum_{n=1}^{N} \lambda_n \left(\sum_{\bm{z}_n} q_n(\bm{z}_n) - 1\right)
+		\end{split}
+	\end{equation*}
+	\item The update equation we get by deriving $\tilde{\mathcal{L}}(q,\bm{\mu}, \bm{\pi}, \lambda, \left\{\lambda_n\right\})$ with respect to the according parameters
+	\begin{description}
+		\item[E-Step] Optimize $q$
+		\begin{equation*}
+			\begin{split}
+				\frac{\partial \tilde{\mathcal{L}}}{\partial q_n(z_n)} & = \log \pi_{z_n} + \left[\sum_{i=1}^{D} x_{ni}\log \mu_{z_n,i}+(1-x_{ni})\log (1-\mu_{z_n,i})\right] - \log q_n(z_n) - 1 + \lambda_n = 0\\
+				\implies q_n(z_n) & = \exp(\lambda_n-1)\pi_{z_n}\prod_{i=1}^{D} \mu_{z_n,i}^{x_{ni}}(1 - \mu_{z_n,i})^{1-x_{ni}}
+			\end{split}
+		\end{equation*}
+		By solving for the Lagrangian $\lambda_n$, we would see that $\exp(\lambda_n-1)=1/(\sum_{z_n}q(z_n))$, and hence, being a normalization factor.
+		\item[M-step] Optimize parameters $\bm{\pi}$:
+		\begin{equation*}
+			\begin{split}
+				\frac{\partial \tilde{\mathcal{L}}}{\partial \pi_k} & = \sum_{n=1}^{N} \sum_{\bm{z}_n }  q_n(\bm{z}_n)\frac{z_{nk}}{\pi_k}  + \lambda \overset{!}{=} 0\\
+				\Leftrightarrow \pi_k & = \frac{1}{\lambda} \sum_{n=1}^{N} \sum_{\bm{z}_n}  z_{nk} q_n(\bm{z}_n)\\
+				\frac{\partial \tilde{\mathcal{L}}}{\partial \lambda} & = \sum_{k=1}^{K} \pi_k - 1 \overset{!}{=} 0\\
+				\Leftrightarrow 1 & = \sum_{k=1}^{K} \frac{1}{\lambda} \sum_{n=1}^{N} \sum_{\bm{z}_n} z_{nk} q_n(\bm{z}_n) \\ 
+				\Leftrightarrow \lambda & = \sum_{k=1}^{K} \sum_{n=1}^{N} \sum_{\bm{z}_n} z_{nk} q_n(\bm{z}_n) = \sum_{n=1}^{N} 1 = N\\
+				\implies \pi_k & = \frac{\sum_{n=1}^{N} \sum_{\bm{z}_n} z_{nk} q_n(\bm{z}_n)}{N}
+			\end{split}
+		\end{equation*}
+		Optimize parameter $\bm{\mu}$:
+		\begin{equation*}
+			\begin{split}
+				\frac{\partial \tilde{\mathcal{L}}}{\partial \mu_{ki}} & = \sum_{n=1}^{N} q_n(k)\left[\frac{x_{ni}}{\mu_{ki}} - \frac{1-x_{ni}}{1-\mu_{ki}}\right]\\
+				\implies \mu_{ki} & = \frac{\sum_{n=1}^{N} q_n(k)x_{ni}}{\sum_{n=1}^{N} q_n(k)}
+			\end{split}
+		\end{equation*}
+	\end{description}
+\end{itemize}
+\subsection{Variational Inference: Variational Bayes}
+\begin{itemize}
+	\item In standard EM, we treat $\bm{\theta}$ to be a parameter that we want to optimize with a single value. However, looking from a Bayesian perspective, we would also treat it as a (latent) random variable and calculate its posterior, leading to the following graphical model:
+	\begin{figure}[ht!]
+		\centering
+		\tikz{ %
+			\node[obs] (x) {$\bm{x}_n$} ; %
+			\node[latent, left=of x] (theta) {$\bm{\theta}$} ; %
+			
+			\edge{theta}{x};
+			
+			\plate{xz}{(x)}{$n=1,...,N$};
+		}
+	\end{figure}
+	\item Note that we could also include latent variables $\bm{z}_n$ as in the EM algorithm, but for generality, we could simply include them in $\bm{\theta}$ as the calculations are exactly the same
+	\item We perform the same derivation as for variational EM, with the difference, that $q$ is now over all parameters $\bm{\theta}$, giving us the following objective:
+	\begin{equation*}
+		\begin{split}
+			L=\log p(X) & \geq \mathcal{L}(q)\\
+			\text{where}\hspace{2mm}\mathcal{L}(q) & = \int q(\bm{\theta}) \log \left[p(X|\bm{\theta})p(\bm{\theta})\right]d\bm{\theta} - \int q(\bm{\theta})\log q(\bm{\theta})d\bm{\theta}\\
+			& = \E_{q(\bm{\theta})}\left[\log \left(p(X|\bm{\theta})p(\bm{\theta})\right)\right] + H(q)
+		\end{split}
+	\end{equation*}
+	Note that we use integrals here as parameters are often continuous.
+	\item The posterior can be found by optimizing $q$:
+	$$p(\bm{\theta}|\bm{X}) = \arg\max_{q(\bm{\theta})} \mathcal{L}(q)$$
+	\item In practice, we restrict $q(\bm{\theta})$ to be in a function family $Q$ for  which we can calculate the maximum of $\mathcal{L}(q)$ analytically, or optimize by gradient ascend. 
+	\item One example for $Q$ is to assume that all (or at least certain parts) of the parameters are independent of each other, hence:
+	$$q(\bm{\theta})\in Q=\left\{\prod_{i=1}^{D}q_i(\bm{\theta}_i)\right\}$$
+	where $\bm{\theta}_i$ can be either a scalar or a vector.
+	\item For this case, we can simplify the objective:
+	\begin{equation*}
+		\begin{split}
+			\tilde{L}(q) & = \int \left(\prod_{i=1}^{D} q_i(\bm{\theta}_i)\right) \log \left[p(X|\bm{\theta})p(\bm{\theta})\right]d\bm{\theta} - \sum_{i=1}^{D}\int q_i(\bm{\theta}_i)\log q_i(\bm{\theta}_i)d\bm{\theta}_i + \sum_{i=1}^{D} \lambda_i \left(\int q_i(\theta_i)d\bm{\theta}_i - 1\right)\\
+			\frac{\partial \tilde{L}}{\partial q_i(\bm{\theta}_i)} & = \int \left(\prod_{j\neq i} q_j(\bm{\theta}_j)\right) \log \left[p(X|\bm{\theta})p(\bm{\theta})\right]d\bm{\theta}_{\setminus i} - \log q_i(\theta_i) - 1 + \lambda_i\\
+			\Leftrightarrow q_i(\bm{\theta}_i) & = \exp\left(\lambda_i - 1\right) \exp\left\{\int \left(\prod_{i\neq j} q_j(\bm{\theta}_j)\right)\log \left(p(\bm{X}|\bm{\theta})p(\bm{\theta})\right) \right\}\\
+		\end{split}
+	\end{equation*}
+	\item Hence, our approximated posterior over $\bm{\theta}_i$ is the expectation of $\log p(X,\bm{\theta})$ over all other parameters:
+	\begin{equation*}
+		\tcbox[nobeforeafter]{\(p(\bm{\theta}|\bm{X})=\prod_{i=1}^{D}q_i(\bm{\theta}_i), \hspace{2mm}q_i(\bm{\theta}_i) = \frac{1}{Z} \exp\left(\E_{q_{\setminus i}}\left[\log p(\bm{X}, \bm{\theta})\right]\right)\)}
+	\end{equation*}
+	We iterate this update for each $q$ until convergence.
+	\item Note that Variational Bayes is highly related to Gibbs sampling as there, we do not calculate the full probability distribution $q$, but simply alternate between sampling from the different $q_i$'s. By iterating until convergence/for a sufficient number of time, we also reach the true posteriors.
+	
+\end{itemize}
+\subsubsection{Example: Gaussian with mean and variance as latent variables}
+\begin{itemize}
+	\item We consider the following graphical model:\\
+	\begin{figure}[ht!]
+		\centering
+		\tikz{ %
+			\node[obs] (x) {$x_n$} ; %
+			\node[latent, above=of x] (mu) {$\mu$} ; %
+			\node[latent, right=of mu] (tau) {$\tau$} ; %
+			
+			\edge{mu}{x};
+			\edge{tau}{x};
+			\edge{tau}{mu};
+			
+			\plate{xz}{(x)}{$n=1,...,N$};
+		}
+	\end{figure}
+
+	where
+	\begin{equation*}
+		\begin{split}
+			p(\bm{X}|\mu, \tau) & = \prod_{n=1}^{N} \mathcal{N}(x_n|\mu, \tau^{-1})\\
+			p(\tau) & = \text{Gamma}(\tau|a_0, b_0)\\
+			p(\mu|\tau) & = \mathcal{N}(\mu|\mu_0, (\lambda_0 \tau)^{-1})
+		\end{split}
+	\end{equation*}
+	\item Now, let's assume that we approximate the posteriors by $q(\tau, \mu)=q(\tau)q(\mu)$. Our objective (excluding the Lagrangian) is:
+	$$\mathcal{L}(q_{\mu}, q_{\tau}) = \int q_{\mu}(\mu)q_{\tau}(\tau)\left[\log p(\bm{X}|\mu, \tau)p(\mu|\tau)p(\tau)\right] + H(q_{\mu}) + H(q_{\tau})$$
+	\item When solving this, we will end up with:
+	\begin{equation*}
+		\begin{split}
+			q_{\mu}(\mu) & = \mathcal{N}\left(\mu\Big\vert \frac{\lambda_0\mu_0 + N\overline{x}}{\lambda_0 + N}, (\lambda_0 + N)\E_{q_{\tau}}[\tau]\right)\\
+			q_{\tau}(\tau) & = \text{Gamma}\left(\tau\Big\vert a_0 + \frac{N}{2}, b_0 + \frac{1}{2}\E_{q_{\mu}}\left[\sum_n (x_n-\mu)^2+\lambda_0(\mu-\mu_0)^2\right]\right)\\
+			\Rightarrow p(\mu, \tau|\bm{X}) &\approx q_{\mu}(\mu)q_{\tau}(\tau)
+		\end{split}
+	\end{equation*}
+\end{itemize}
+\subsubsection{Combining Variational EM and Variational Bayes}
+\begin{itemize}
+	\item The Variational EM algorithm and the variational Bayes are strongly related. In fact, we can generalize the framework to combine both of them
+	\item Our goal is to optimize the parameters $\bm{\theta}$, and marginalize over latent variables $\bm{Z}$, leading to the objective:
+	$$\ln p(\bm{X}) = \E_{q(\bm{Z}, \bm{\theta})}\left[\ln p(\bm{X}, \bm{Z}, \bm{\theta})\right] + \underbrace{H(q_Z) + H(q_{\theta})}_{\text{assume } q(\bm{Z},\bm{\theta})=q_Z(\bm{Z})q_{\theta}(\bm{\theta})} + \underbrace{\text{KL}\left(q_Z q_{\theta} || p(\bm{Z}, \bm{\theta}|\bm{X})\right)}_{\geq 0}$$
+	\item Again, we can optimize an ELBO instead:
+	$$\ln p(\bm{X}) \geq \E_{q_Z q_{\theta}}\left[\ln p(\bm{X}, \bm{Z}, \bm{\theta})\right] = \mathcal{L}(q_Z, q_{\theta})$$
+	\item Assuming $\tilde{\mathcal{L}}(q_Z, q_{\theta})$ being the objective function including the Lagrangian, we have the following steps:
+	\begin{description}
+		\item[$\E_{Z}$-step]: $\max_{q_Z} \tilde{\mathcal{L}}(q_Z, q_{\theta})$
+		\item[$\E_{\theta}$-step]: $\max_{q_{\theta}} \tilde{\mathcal{L}}(q_Z, q_{\theta})$
+	\end{description}
+	\item As this is a generalization, we can find both the EM algorithm and variational Bayes in it. The EM algorithm is found if we choose $q_{\theta}(\theta)=\delta(\theta'-\theta)$, where $\theta'$ is optimized $\Rightarrow$ equal to replacing $q_{\theta}$ with MLE/MAP solution
+	\item For variational Bayes, we can simply ignore the $Z$ part as we fully focus on $q_{\theta}$. The iteration over the $\E_{\theta}$-step is equal to variational Bayes
+\end{itemize}
+\subsection{Variational Auto-Encoder (VAE)}
+\begin{itemize}
+	\item One implementation with neural networks of this variational framework are VAEs, where we model the likelihood by:
+	$$p(\bm{X}, \bm{Z}|\bm{\theta}) = \underbrace{p(\bm{X}|\bm{Z}, \bm{\theta}_2)}_{\text{decoder}}\underbrace{p(\bm{Z}|\bm{\theta}_1)}_{\text{encoder/prior}}$$
+	\item The aim is to find a lower-dimensional representation $Z$ of the data $X$ (\textit{encode} $X$). For approximating the posterior, we use again $q(\bm{Z}|\bm{X},\bm{\lambda})\approx p(\bm{Z}|\bm{X}, \bm{\theta}_1, \bm{\theta}_2)$, where $q$ is now a neural network
+	\item As a prior distribution, we use e.g. $p(\bm{Z}|\bm{\theta}_1) \sim \mathcal{N}(0,1)$ which encourages the latents to be independent. Furthermore, by using this prior, we can treat VAEs as a non-linear version of PCA (in case we choose student-t distribution, we would get non-linear ICA)
+	\item Optimize the ELBO of the log-likelihood via SGD:
+	\begin{equation*}
+		\begin{split}
+			\mathcal{L}(\bm{\theta}) & = \ln p(\bm{X}|\bm{\theta}) = \ln \int p(\bm{X}|\bm{Z},\bm{\theta})p(\bm{Z}|\bm{\theta})d\bm{Z}\\
+			\mathcal{L}(\bm{\theta}, \bm{\lambda}) = \E_{q(Z|X,\lambda)}\left[\ln p(\bm{X}|\bm{Z},\bm{\theta}_2) + \ln p(\bm{Z}|\bm{\theta}_1)\right] + H(q(\bm{Z}|\bm{X}, \bm{\lambda}))
+		\end{split}
+	\end{equation*}
+	\item To prevent the integral, we can sample instead. To make these samples differentiable, we need to use the reparameterization trick:
+	\begin{equation*}
+		\begin{split}
+			z^{(k)}\sim q(z|x, \lambda) & \Rightarrow z=g_{\lambda}(x, \epsilon), \epsilon\sim p(\epsilon)
+		\end{split}
+	\end{equation*}
+	As for a multivariate Gaussian with diagonal covariance, we have $g_{\lambda}(\bm{x}, \bm{\epsilon})=\bm{\mu}_{\lambda}(x)+\bm{\sigma}_{\lambda}\odot \bm{\epsilon}, \epsilon\sim\mathcal{N}(0,1)$
+\end{itemize}

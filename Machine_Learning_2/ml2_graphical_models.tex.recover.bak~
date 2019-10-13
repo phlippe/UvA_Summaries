@@ -1,0 +1,45 @@
+\section{Probabilistic graphical models}
+\begin{itemize}
+	\item It is often beneficial to visualize a probabilistic model as a diagram, which we call \textit{(probabilistic) graphical models}. 
+	\item They are good for:
+	\begin{itemize}
+		\item causal reasoning/modeling
+		\item calculating inference and conditional distributions efficiently 
+		\item Designing and communicating statistical model
+		\item Encoding independence relations
+	\end{itemize} 
+	\item Note that there are often multiple ways to express the same probability distribution. For example, take a joint distribution $p(A,B,C)$, which we can either write as $p(A,B,C)=p(A)p(B|A)p(C|A,B)$ (see Figure~\ref{}) or $p(A,B,C)=p(C)p(A|C)p(B|A,C)$ (see Figure~\ref{}). Nevertheless, what we interested in the end is the graphical representation with the least number of edges, as e.g. if $A$ and $B$ are independent, we can drop the edge between those.
+	\begin{figure}[ht!]
+		\centering
+		\begin{subfigure}{0.4\textwidth}
+			\centering
+			\tikz{ %
+				\node[latent] (A) {$A$} ; %
+				\node[latent, right=of A] (B) {$B$} ; %
+				\node[latent, below=of B] (C) {$C$} ; %
+				
+				\edge{A}{B};
+				\edge{A}{C};
+				\edge{B}{C};
+			}
+			\caption{$p(A,B,C)=p(A)p(B|A)p(C|A,B)$}
+		\end{subfigure}
+		\hspace{10mm}
+		\begin{subfigure}{0.4\textwidth}
+			\centering
+			\tikz{ %
+				\node[latent] (A) {$A$} ; %
+				\node[latent, right=of A] (B) {$B$} ; %
+				\node[latent, below=of B] (C) {$C$} ; %
+				
+				\edge{A}{B};
+				\edge{C}{A};
+				\edge{C}{B};
+			}
+			\caption{$p(A,B,C)=p(C)p(A|C)p(B|A,C)$}
+			\label{fig:graphical_models_example_2}
+		\end{subfigure}
+		\caption{Two different graphical models for the same joint distribution $p(A,B,C)$.}
+	\end{figure}
+	\item We distinguish between directed acyclic graphs, which we call \textit{Bayesian networks} (BN), and undirected graphs, which are \textit{Markov Random Fields} (MRF)
+\end{itemize}

@@ -1,0 +1,163 @@
+\section{Appendix Math}
+Here we revisit some important mathematical tricks and equations to know.  
+\subsection{Useful properties of a Gaussian}
+Given $\bm{x}\sim \mathcal{N}(\bm{\mu}, \bm{\Sigma})$, suppose $\bm{x}=(\bm{x}_a, \bm{x}_b)$, define $\bm{\mu}=(\bm{\mu}_a, \bm{\mu}_b)$ and $\bm{\Sigma} = \begin{bmatrix}
+\Sigma_{aa} & \Sigma_{ab}\\ \Sigma_{ba} & \Sigma_{bb}
+\end{bmatrix}$ ($\Sigma_{ab}=\Sigma_{ba}^T$, $\Sigma_{aa}=\Sigma_{aa}^T$)\\
+
+\textbf{Marginal distribution}: $p(\bm{x}_a) = \mathcal{N}(\bm{x}_a\mid \bm{\mu}_a, \Sigma_{aa})$\\
+
+\textbf{Conditional distribution}: $p(\bm{x}_a\vert \bm{x}_b) = \mathcal{N}(\bm{x}_a\mid \bm{\mu}_{a|b}, \Sigma_{a|b})$\\ where $\Sigma_{a|b} = \Sigma_{aa} - \Sigma_{ab}\Sigma_{bb}^{-1}\Sigma_{ba}, \bm{\mu}_{a\vert b} = \bm{\mu}_a + \Sigma_{ab}\Sigma_{bb}^{-1}\left(\bm{x}_{b}-\bm{\mu}_{b}\right)$\\[10pt]
+
+\textbf{Multiplication of two Gaussians}: $\mathcal{N}(\bm{x}\mid \bm{a}, \bm{A})\mathcal{N}(\bm{x}\mid\bm{b}, \bm{B})=\mathcal{N}(\bm{x}|\bm{c}, \bm{C})\overbrace{\mathcal{N}(\bm{a}|\bm{b}, \bm{A}+\bm{B})}^{\text{Normalization constant}}$\\ where $\bm{C}=\left(\bm{A}^{-1}+\bm{B}^{-1}\right)^{-1}$, $\bm{c}=\bm{C}\left(\bm{A}^{-1}\bm{a}+\bm{B}^{-1}\bm{b}\right)$\\
+
+\textbf{Conditional and marginals in graphical model}\\
+\begin{wrapfigure}[3]{l}{0.1\textwidth}
+	\centering
+	\tikz{ %
+		\node[latent] (x) {$\bm{x}$} ; %
+		\node[latent, below=of x] (y) {$\bm{y}$} ; %
+		
+		\edge{x}{y}
+	}
+\end{wrapfigure}
+\begin{equation*}
+	\begin{split}
+		p(x) & = \mathcal{N}(x|\mu, \Lambda^{-1})\\
+		p(y|x) & = \mathcal{N}(Ax+b, L^{-1})\\[10pt]
+		\Rightarrow p(y) & = \mathcal{N}(y|A\mu + b, L^{-1} + A\Lambda^{-1}A^T)\\
+		\Rightarrow p(x|y) & = \mathcal{N}(x|\Sigma(A^T L (y - b) + \Lambda\mu), \Sigma), \hspace{2mm} \Sigma=(\Lambda + A^T L A)^{-1}
+	\end{split}
+\end{equation*}
+
+
+\subsection{Distributions from the exponential family}
+It is useful to know the exponential form of a few most popular distributions. Remember that in general, a distribution of the exponential family can be written in the form:
+$$p(\bm{x}|\bm{\eta}) = h(\bm{x})g(\bm{\eta})\exp\left(\bm{\eta}^T \cdot \bm{u}(\bm{x})\right)$$
+Some tricks to keep in mind:
+\begin{itemize}
+	\item $a^{b}=\exp(b\cdot \log a)$ - helpful to find sufficient statistics and natural parameters
+	\item If we have the constraint $\sum_k \pi_k= 1$, replace $\pi_K$ with $\pi_K=1-\sum_{k\neq K} \pi_k$ $\Rightarrow$ one less parameter
+\end{itemize}
+\subsubsection{Gaussian}
+\textbf{Univariate}:
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(x|\mu, \sigma^2) = \mathcal{N}(x|\mu, \sigma^2) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	\frac{\mu}{\sigma^2} & -\frac{1}{2\sigma^2}\\
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	x & x^2\\
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = \frac{1}{\sqrt{2\pi}}\\
+	& g(\bm{\eta}) = \frac{1}{\sigma}\exp\left(-\frac{\eta_1^2}{4\cdot \eta_2}\right)\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\textbf{Multivariate}:
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+		\begin{split}
+			& p(\bm{x}|\bm{\mu}, \bm{\Sigma}) = \mathcal{N}(\bm{x}|\bm{\mu}, \bm{\Sigma}) = (2\pi)^{-D/2}|\Sigma|^{-1}\cdot \exp\left(-\frac{1}{2}(\bm{x}-\bm{\mu})^T\Sigma^{-1}(\bm{x}-\bm{\mu})\right)\\[8pt]
+			& \bm{\eta} = \begin{bmatrix}
+			\bm{\Sigma}^{-1}\bm{\mu} & -\frac{1}{2}\bm{\Sigma}^{-1}\\
+			\end{bmatrix}^T\\
+			& \bm{u}(\bm{x}) = \begin{bmatrix}
+				\bm{x} & \bm{x}\bm{x}^T\\
+			\end{bmatrix}^T\\
+			& h(\bm{x}) = (2\pi)^{-D/2}\\
+			& g(\bm{\eta}) = |-2\bm{\eta}_1| \cdot \exp\left(\frac{1}{4}\bm{\eta}_{1}^T\bm{\eta}_{2}^{-1}\bm{\eta}_{1}\right)\\
+		\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Beta}
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(x|\alpha, \beta) = \frac{x^{\alpha-1}(1 - x)^{\beta-1}}{B(\alpha, \beta)} \hspace{4mm}\text{where}\hspace{4mm}B(\alpha, \beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	\alpha & \beta\\
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	\log x & \frac{1}{x}\\
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = 1\\
+	& g(\bm{\eta}) = \frac{1}{B(\eta_1, \eta_2)}\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Multinomial}
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(\bm{x}|\bm{\pi}) = \frac{M!}{\prod_{i=1}^{K}x_i!}\prod_{i=1}^{K}\pi_i^{x_i}\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	\ln\frac{\pi_1}{1-\sum_{i=1}^{K-1}\pi_i} & \ln\frac{\pi_2}{1-\sum_{i=1}^{K-1}\pi_i} & ... & \ln\frac{\pi_{K-1}}{1-\sum_{i=1}^{K-1}\pi_i}
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	x_1 & x_2 & ... & x_{K-1}
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = \frac{M!}{\prod_{i=1}^{K}x_i!}\\
+	& g(\bm{\eta}) = \exp\left(-M\ln \left(1 + \sum_{i=1}^{K-1}\exp(\eta_i)\right)\right)\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Dirichlet}
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(\bm{x}|\alpha_1,..,\alpha_K) = \frac{1}{B(\alpha_1,..., \alpha_K)}\prod_{i=1}^{K}x_i^{\alpha_i-1} \hspace{4mm}\text{where}\hspace{4mm}B(\alpha_1,...,\alpha_K)=\frac{\prod_{i=1}^{K}\Gamma(\alpha_i)}{\Gamma(\sum_{i=1}^{K} \alpha_i)}\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	\alpha_1 & ... & \alpha_K\\
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	\log x_1 & ... & \log x_K\\
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = \frac{1}{\prod_{i=1}^{K}x_i}\\
+	& g(\bm{\eta}) = \frac{1}{B(\eta_1, ..., \eta_K)}\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Poisson}
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(x|\lambda) = \frac{\lambda^{x}\exp(-x)}{x!}\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	\ln \lambda \\
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	x\\
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = \frac{1}{x!}\\
+	& g(\bm{\eta}) = \exp(-\exp(\eta))\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Gamma}
+\begin{fleqn}[\parindent]
+	\begin{equation*}
+	\begin{split}
+	& p(x|a,b) = \frac{1}{\Gamma(x)}b^{a}x^{a-1}\exp(-bx)\\[8pt]
+	& \bm{\eta} = \begin{bmatrix}
+	(a-1) & -b \\
+	\end{bmatrix}^T\\
+	& \bm{u}(\bm{x}) = \begin{bmatrix}
+	\ln x & x\\
+	\end{bmatrix}^T\\
+	& h(\bm{x}) = 1\\
+	& g(\bm{\eta}) = \frac{(-\eta_2)^{\eta_1+1}}{\Gamma(\eta_1+1)}\\
+	\end{split}
+	\end{equation*}
+\end{fleqn}
+\subsubsection{Conjugate priors}
+\begin{itemize}
+	\item Dirichlet $\to$ Multinomial 
+	\item Dirichlet $\to$ Categorical 
+	\item Beta $\to$ Bernoulli
+	\item Gamma $\to$ Poisson
+	\item Gaussian $\to$ Gaussian
+	\item Gamma (precision) $\to$ Gaussian (known mean)
+\end{itemize}

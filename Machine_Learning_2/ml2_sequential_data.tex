@@ -1,0 +1,275 @@
+\section{Sequential Data}
+\begin{itemize}
+	\item Most models we discussed so far assumed that multiple data points $\bm{x}_n$ are independent of each other. However, in many use-cases, we have e.g. temporal data where consecutive data points dependent on each other
+	\item The likelihood of such data can be written as:
+	$$p(x_1,...,x_N) = \prod_{n=1}^{N} p(x_n|x_1,...,x_{n-1})$$
+	\item Here, we will focus on Markov models and its different variations
+\end{itemize}
+\subsection{Markov models}
+\begin{itemize}
+	\item One of the simplest models for sequential data are Markov models, where we limit the conditionals to a fixed size. For example, a \textit{first-order} Markov model has the likelihood $p(x_1)\prod_{n=2}^{N}p(x_n|x_{n-1})$:
+	
+	\begin{figure}[ht!]
+		\centering
+		\tikz{ %
+			\node[obs] (x1) {$x_1$} ; %
+			\node[obs, right=of x1] (x2) {$x_2$} ; %
+			\node[obs, right=of x2] (x3) {$x_3$} ; %
+			\node[const, right=of x3] (xetc1) { \hspace{2mm}...\hspace{2mm} } ; %
+			
+			\edge{x1}{x2};
+			\edge{x2}{x3};
+			\edge{x3}{xetc1};
+		}
+	\end{figure}
+
+	A second-order MM would add connections between $x_1$ and $x_3$, $x_2$ and $x_4$ etc.
+	\item We call a Markov model \underline{homogeneous} if all conditionals $p(x_{n}|x_{n-1})$ are the same, i.e. the transition probability is steady over time:
+	$$p(x_{n}=a|x_{n-1}=b) = p(x_{n+m}=a|x_{n+m-1}=b)$$
+	\item Suppose each $x_n$ has $K$ possible states. Then the parameters for a homogeneous MM increases over the order by:
+	\begin{table}[ht!]
+		\centering
+		\begin{tabular}{c|cc}
+			Order & \multicolumn{2}{c}{Number of params}\\
+			& Prior & Conditionals\\
+			\hline 
+			$0$ & $K-1$ & $0$\\
+			$1$ & $K-1$ & $K(K-1)$\\
+			$2$ & $K^2 - 1$ & $K^2(K-1)$\\
+			... & ... & ...\\
+			$M$ & $K^{M}-1$ & $K^{M}(K-1)$\\
+		\end{tabular}
+	\end{table}
+	For inhomogeneous MM, we would have $N-M$-times the conditional parameters where $N$ is the length of the chain (needs fixed size if conditionals are not shared!). 
+	
+	As the number of parameters increase exponentially with the order $M$, it is often impractical to use high-order MM. 
+	\item Our next discussions will focus on the first-order MM but can be applied to any order. This can be easily shown by reducing a M'th order MM to 1st oder MM: introduce new variables $y_n=(x_n,x_{n+1},...,x{n+M-1})$, then:
+	$$p(y_n=(x_n,x_{n+1},...,x_{n+M-1})|y_{n-1}=(\tilde{x}_{n-1},\tilde{x}_n,...,\tilde{x}_{n+M-2}))=\begin{cases}
+	0 & \text{if for any } i, x_i\neq \tilde{x}_i\\
+	p(x_{n+M-1}|x_n,...,x_{n+M-2}) & \text{otherwise}
+	\end{cases}$$
+	\item Often, we want Markov models that are more expressive than a first-order, but at the same time, prevent having too many parameters. One way of enriching the class of MMs is by introducing latent variables as shown in this graphical model:
+	
+	\begin{figure}[ht!]
+		\centering
+		\tikz{ %
+			\node[latent] (z1) {$z_1$} ; %
+			\node[latent, right=of z1] (z2) {$z_2$} ; %
+			\node[latent, right=of z2] (z3) {$z_3$} ; %
+			\node[obs, below=of z1] (x1) {$x_1$} ; %
+			\node[obs, below=of z2] (x2) {$x_2$} ; %
+			\node[obs, below=of z3] (x3) {$x_3$} ; %
+			\node[const, right=of z3] (zetc1) { \hspace{2mm}...\hspace{2mm} } ; %
+			
+			\edge{z1}{z2};
+			\edge{z2}{z3};
+			\edge{z3}{zetc1};
+			
+			\edge{z1}{x1};
+			\edge{z2}{x2};
+			\edge{z3}{x3};
+		}
+	\end{figure}
+	\item The joint distribution for this model is given by: $$p(x_1,...,x_N,z_1,...,z_N)=p(z_1)\cdot \left[\prod_{n=2}^{N} p(z_n|z_{n-1})\right]\cdot \left[\prod_{n=1}^{N} p(x_n|z_{n})\right]$$
+	\item We now look at two variants of this model:
+	\begin{enumerate}
+		\item \textit{Hidden Markov Models} assume that the latent space $z$ is discrete
+		\item \textit{Linear Dynamical Systems} use a continuous latent space $z$ such as linear Gaussian
+	\end{enumerate}
+\end{itemize}
+
+\subsection{Hidden Markov Models}
+\begin{itemize}
+	\item Commonly, when using discrete latent variables, we assume that we have a mixture model, and $z_n$ as discrete multinomial variables specify the component from which $x_n$ was generated
+	\item For the homogeneous case, we get the joint distribution:
+	$$p(\bm{x}_1,...,\bm{x}_N|\bm{\pi},\bm{A},\bm{\phi}) = \sum_{\bm{z}_1}...\sum_{\bm{z}_N} p(\bm{z}_1|\bm{\pi})\left[\prod_{n=2}^{N} \underbrace{p(\bm{z}_n|\bm{z}_{n-1},\bm{A})}_{\text{Transition probabilities}}\right]\cdot \left[\prod_{n=1}^{N} \underbrace{p(\bm{x}_n|\bm{z}_n,\bm{\phi})}_{\text{Emission probabilities}}\right]$$
+	where $\bm{A}$ can be seen as a table with $A_{jk}\equiv p(z_{nk}=1|z_{n-1,j}=1)$ which gives the constraints $\sum_k A_{jk}=1$, $0\leq A_{jk}\leq 1$. 
+	
+	The parameter $\bm{\pi}$ is again a prior over latent states for $z_1$, where $\sum_k \pi_k = 1$.
+	
+	The mapping between latent and observed variable is described as emission probabilities, which we can write as $p(\bm{x}_n|\bm{z}_n,\bm{\phi})=\prod_{k=1}^{K} p(\bm{x}_n|\bm{\phi}_k)^{z_{nk}}$
+	
+	\item For optimizing the parameters, we again use the EM algorithm
+	
+\end{itemize}
+\subsubsection{Maximum Likelihood for HMM}
+\begin{itemize}
+	\item Remember that our objective in the EM algorithm was:
+	$$Q(\bm{\theta}, \bm{\theta}^{\text{old}})=\sum_{\bm{Z}} p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}})\ln p(\bm{X},\bm{Z}|\bm{\theta})=\E_{\bm{Z}\sim p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}})}\left[\ln p(\bm{X},\bm{Z}|\bm{\theta})\right]$$
+	which can be written in our case as:
+	\begin{equation*}
+		\begin{split}
+			Q(\bm{\theta}, \bm{\theta}^{\text{old}}) & = \E_{\bm{z}_1\sim p(\bm{z}_1|\bm{X},\bm{\theta}^{\text{old}})}\left[\sum_{k=1}^{K} z_{1k}\ln \pi_k\right] + \\
+			& \hspace{5mm}\sum_{n=2}^{N} \E_{(\bm{z}_n, \bm{z}_{n-1})\sim p(\bm{z}_n, \bm{z}_{n-1}|\bm{X},\bm{\theta}^{\text{old}})}\left[\sum_{j=1}^{K}\sum_{k=1}^{K}z_{nj}\cdot z_{n-1,k}\cdot \ln A_{jk}\right] + \\
+			& \hspace{5mm} \sum_{n=1}^{N} \E_{\bm{z}_n\sim p(\bm{z}_n|\bm{X},\bm{\theta}^{\text{old}})} \left[\sum_{k=1}^{K} z_{nk} \ln p(\bm{x}_n|\bm{\phi}_k)\right]\\
+			& = \sum_{k=1}^{K} \gamma(z_{1k})\ln \pi_k + \sum_{n=2}^{N} \sum_{j=1}^{K}\sum_{k=1}^{K}\zeta(z_{n-1,j}, z_{nk})\cdot \ln A_{jk} + \sum_{n=1}^{N} \sum_{k=1}^{K} \gamma(z_{nk})\ln p(\bm{x}_n|\bm{\phi}_k)
+		\end{split}
+	\end{equation*}
+	where we use $\gamma(\bm{z}_n)=p(\bm{z}_n|\bm{X},\bm{\theta}^{\text{old}})$ and $\zeta(\bm{z}_{n-1},\bm{z}_n)=p(\bm{z}_{n-1},\bm{z}_{n}|\bm{X},\bm{\theta}^{\text{old}})$.
+	\item Now, let's take a closer look at the steps of the EM algorithm
+	\begin{description}
+		\item[E-step] We need to determine $p(z_1,...,z_N|\bm{X},\bm{\theta}^{\text{old}})$ which we split into $\gamma(\bm{z}_n)$ and $\zeta(\bm{z}_{n-1},\bm{z}_n)$. Hence, we need to calculate marginals, which can be done efficiently with the sum-product algorithm.
+		
+		First, we need to convert the Bayesian network into a factor graph. We do this by replacing the prior with  $h(\bm{z}_1)=p(\bm{z}_1|\bm{\pi}^{\text{old}})p(\bm{x}_1|\bm{z}_1, \bm{\phi}^{\text{old}})$, and the transitions by $f_n(\bm{z}_{n-1},\bm{z}_n)=p(\bm{z}_n|\bm{z}_{n-1}, \bm{A}^{\text{old}})p(\bm{x}_n|\bm{z}_n,\bm{\theta}^{\text{old}})$. The corresponding factor graph looks like in Figure~\ref{fig:HMM_factor_graph}.
+		
+		\begin{figure}[ht!]
+			\centering
+			\tikz{ %
+				\factor[] {h1} {$h_1$} {} {} ;
+				\node[latent, right=of h1] (z1) {$\bm{z}_{1}$} ; %
+				\factor[right=of z1] {f2} {$f_2$} {} {} ;
+				\node[latent, right=of f2] (z2) {$\bm{z}_{2}$} ; %
+				\factor[right=of z2] {f3} {$f_3$} {} {} ;
+				\node[latent, right=of f3] (z3) {$\bm{z}_{3}$} ; %
+				\factor[right=of z3] {f4} {$f_4$} {} {} ;
+				\node[const, right=of f4] (zetc) {\hspace{2mm}...\hspace{2mm} } ; %
+				\factor[right=of zetc] {fN} {$f_N$} {} {} ;
+				\node[latent, right=of fN] (zN) {$\bm{z}_{N}$} ; %
+						
+				\factoredge{}{h1}{z1} ;	
+				\factoredge{z1}{f2}{z2} ;	
+				\factoredge{z2}{f3}{z3} ;	
+				\factoredge{z3}{f4}{zetc} ;	
+				\factoredge{zetc}{fN}{zN} ;	
+			}
+			\caption{Drawing of the factor graph. Note that the edges are usually undirected, and here only directed due to the used \texttt{LaTeX}-framework \texttt{tikz-bayesnet}.}
+			\label{fig:HMM_factor_graph}
+		\end{figure}
+	
+		Using the factor graph, we want to determine the normalized beliefs $p(\bm{z}_n|\bm{X},\bm{\theta}^{\text{old}})$. The sum product updates are:
+		\begin{equation*}
+			\begin{split}
+				\mu_{z_{n-1}\to f_n}(\bm{z}_{n-1}) & = \mu_{f_{n-1}\to z_{n-1}}(\bm{z}_{n-1})\\
+				\alpha_n(\bm{z}_n) = \mu_{f_n\to z_n}(\bm{z}_{n}) & = \sum_{\bm{z}_{n-1}} f_n(\bm{z}_{n-1},\bm{z}_n)\alpha_{n-1}(\bm{z}_{n-1})\\
+				\mu_{z_n \to f_n}(\bm{z}_n) & = \mu_{f_{n+1} \to z_n}(\bm{z}_n) \\
+				\beta_n(\bm{z}_n) & = \sum_{z_{n+1}} f_{n+1}(\bm{z}_n, \bm{z}_{n+1})\beta_{n+1}(\bm{z}_{n+1})
+			\end{split}
+		\end{equation*}
+		Our beliefs can be calculated by:
+		\begin{equation*}
+			\begin{split}
+				\text{Variable belief } \hspace{2mm} p(\bm{z}_n,\bm{X}|\bm{\theta}^{\text{old}}) & = \alpha_n(\bm{z}_n)\beta_n(\bm{z}_n)\\
+				\text{Factor belief } \hspace{2mm} p(\bm{z}_{n-1}, \bm{z}_n,\bm{X}|\bm{\theta}^{\text{old}}) & = \mu_{f_{n-1}\to z_{n-1}}(z_{n-1})\mu_{f_{n+1}\to z_n}(\bm{z}_n)f_n(\bm{z}_{n-1}, \bm{z}_n)\\
+				\text{Normalization constant } \hspace{2mm} p(\bm{X}|\bm{\theta}^{\text{old}}) & = \sum_{\bm{z}_n} \alpha_n(\bm{z}_n)\beta_n(\bm{z}_n)\\
+			\end{split}
+		\end{equation*}
+		Finally, we can calculate our sufficient statistics:
+		\begin{equation*}
+			\begin{split}
+				\gamma(\bm{z}_n) & = \frac{p(\bm{z}_n, \bm{X}|\bm{\theta}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})} = \frac{\alpha_n(\bm{z}_n)\beta_n(\bm{z}_n)}{\tilde{p}(\bm{X}|\bm{\theta}^{\text{old}})}\\
+				\zeta(\bm{z}_{n-1},\bm{z}_n) & = \frac{p(\bm{z}_{n-1},\bm{z}_n,\bm{X}|\bm{\theta}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})} = \frac{\alpha_{n-1}(\bm{z}_{n-1})\beta_n(\bm{z}_n)p(\bm{z}_n|\bm{z}_{n-1}, \bm{A}^{\text{old}})p(\bm{x}_n|\bm{z}_n, \bm{\phi}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})}			
+			\end{split}
+		\end{equation*}
+		
+		\item[M-step] In the maximization step, we optimize $Q(\bm{\theta}, \bm{\theta}^{\text{old}})$ regarding the parameters $\bm{\pi}$, $\bm{A}$ and $\bm{\phi}$. Note that we need to add Lagrangian for the constraints on $\bm{A}$ and $\bm{\pi}$:
+		$$\tilde{Q}(\bm{\theta}, \bm{\theta}^{\text{old}}) = Q(\bm{\theta}, \bm{\theta}^{\text{old}}) + \lambda \left(\sum_{k=1}^{K} \pi_k - 1\right) + \sum_{j=1}^{K} \lambda_j \left(\sum_{k=1}^{K} A_{jk} - 1\right)$$
+		Performing the maximization, we get:
+		\begin{equation*}
+			\begin{split}
+				\pi_k^{\text{new}} & =\frac{\gamma(z_{1k})}{\sum_{k=1}^{K}\gamma(z_{1j})}, \hspace{5mm} A_{jk} = \frac{\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nk})}{\sum_{l=1}^{K}\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nl})}
+			\end{split}
+		\end{equation*}
+		Solving the same for the parameter $\bm{\phi}$ depends on the form of emission probability that was chosen. For example, if we have a Gaussian density $p(\bm{x}|\bm{\phi}_k)$, the optimized parameters are:
+		$$\bm{\mu}_k=\frac{\sum_{n=1}^{N}\gamma(z_{nk})\bm{x}_n}{\sum_{n=1}^{N}\gamma(z_{nk})}, \hspace{5mm} \bm{\Sigma}_k = \frac{\sum_{n=1}^{N} \gamma(z_{nk})(\bm{x}_n - \mu_{k})(\bm{x}_n - \mu_{k})^T}{\sum_{n=1}^{N} \gamma(z_{nk})}$$
+		Similarly, if we would have discrete observations and model it with a multinomial distribution, i.e. $p(\bm{x}|\bm{z},\bm{\mu}) = \prod_{i=1}^{D}\prod_{k=1}^{K} \mu_{ik}^{x_i z_k}$, we would get as solution:
+		$$\mu_{ik} = \frac{\sum_{n=1}^{N}\gamma(z_{nk})x_{ni}}{\sum_{n=1}^{N}\gamma(z_{nk})}$$
+	\end{description}
+	
+	\item To conclude, the EM algorithm for Hidden Markov Models can be summarized as follows:
+	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=EM for HMM]
+		\begin{enumerate}
+			\item Choose initial values $\bm{\theta}^{\text{old}}$ with $\bm{\theta}=(\bm{\pi}, \bm{A}, \bm{\phi})$
+			\item Iterate until $\Delta \bm{\theta}^{(t)} < \epsilon$
+			\begin{enumerate}
+				\item \textbf{E-step}: Calculate $Q(\bm{\theta}, \bm{\theta}^{\text{old}})$ by:
+				\begin{enumerate}
+					\item Run forward $\alpha$ recursion to calculate $\alpha(z_1),...,\alpha(z_N)$
+					\item Run backward $\beta$ recursion to calculate $\beta(z_N),...,\beta(z_1)$
+					\item Calculate sufficient statistics $\gamma(z_n)$, $\zeta(z_{n-1},z_n)$ for $n=1,..,N$, and normalization constant $p(\bm{X}|\bm{\theta}^{\text{old}})$
+				\end{enumerate}
+				\item \textbf{M-step}: Calculate $\bm{\theta}^{\text{new}}=\arg\max_{\bm{\theta}} \tilde{Q}(\bm{\theta}, \bm{\theta}^{\text{old}})$
+				\begin{itemize}
+					\item $\pi_k^{\text{new}}=\gamma(z_{1k})/\sum_{k=1}^{K}\gamma(z_{1j})$
+					\item $A_{jk}=\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nk})/\sum_{l=1}^{K}\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nl})$
+					\item $\bm{\phi}^{\text{new}}$ depending on choice of emission probability
+				\end{itemize}
+			\end{enumerate}
+		\end{enumerate}
+	\end{tcolorbox}
+\end{itemize}
+\subsubsection{Viterbi Algorithm (Max-sum for HMMs)}
+\begin{itemize}
+	\item Sometimes we might be interested in the latent variables $\bm{Z}$ for a given fixed model as they can be interpreted, and thus we want to determine the most likely values
+	\item For this, we can use an adaptation of the max-sum algorithm where we use dynamic programming for the backward path
+	\item We use the same factor graph as in Figure~\ref{fig:HMM_factor_graph}. For simplification, we denote the message from $f_n$ (or $h_1$ for $n=1$) to $\bm{z}_n$ as $\omega(\bm{z}_n)$.
+	\item The whole algorithm can be then summarized as:
+	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode of Viterbi algorithm]
+		\begin{algorithm}[H]
+			\SetAlgoLined
+			\tcp{\textcolor{blue}{Forward pass}}
+			Set initial message $\omega(\bm{z}_1) = \ln p(\bm{z}_1) + \ln p(\bm{x}_1|\bm{z}_1)$\;
+			\For{$n=1,...,N-1$}{
+				$\omega(\bm{z}_{n+1})=\ln p(\bm{x}_{n+1}|\bm{z}_{n+1}) + \max_{\bm{z}_n}\left(\ln p(\bm{z}_{n+1}|\bm{z}_n) + \omega(\bm{z}_n)\right)$\;
+				$\psi_n(\bm{z}_{n+1})=\arg\max_{\bm{z}_n}\left(\ln p(\bm{z}_{n+1}|\bm{z}_n) + \omega(\bm{z}_n)\right)$
+			}
+			\tcp{\textcolor{blue}{Backward pass}}
+			$\bm{z}_N^{\text{max}}=\arg\max_{\bm{z}_N} \omega(\bm{z}_N)$\;
+			\For{$n=N-1,...,1$}{
+				$z_n^{\text{max}} = \psi_{n}(\bm{z}_{n+1}^{\text{max}})$\;
+			}
+			Return $\bm{z}_1^{\text{max}}, \bm{z}_2^{\text{max}},...,\bm{z}_N^{\text{max}}$\;
+		\end{algorithm}
+	\end{tcolorbox}
+\end{itemize}
+\subsection{Linear Dynamical Systems}
+\begin{itemize}
+	\item As mentioned before, Linear Dynamical Systems use a continuous latent space $\bm{z}_n\in \mathbb{R}^{d_z}$ instead of a discrete as in HMM. This also influences the models we take because, as we will see later, specific distribution properties help to simplify the calculations
+	\item One popular model is a \textit{Linear-Gaussian}: all conditional distributions in the Bayesian network are Gaussians with means that depend linearly on its parents. This leads to the probabilities:
+	\begin{equation*}
+		\begin{split}
+			\text{Transition probability}\hspace{2mm} p(\bm{z}_n|\bm{z}_{n-1}) & = \mathcal{N}(\bm{z}_n|\bm{A}\bm{z}_{n-1}, \bm{\Gamma})\\
+			\text{Emission probability}\hspace{2mm} p(\bm{x}_n|\bm{z}_n) & = \mathcal{N}(\bm{x}_n|\bm{C}\bm{z}_n, \bm{\Sigma})\\
+			\text{Initial state}\hspace{2mm} p(\bm{z}_1)  & = \mathcal{N}(\bm{z}_1|\bm{\mu}_0, \bm{V}_0)
+		\end{split}
+	\end{equation*}
+	with parameters $\bm{\theta}=(\bm{A}, \bm{\Gamma}, \bm{C}, \bm{\Sigma}, \bm{\mu}_0, \bm{V}_0)$ where $\bm{\Sigma}$ is the observation noise, and $\bm{\Gamma}$ the transition uncertainty.
+	\item We first consider inference in LDS which represents the E-step, and then complete the learning process with the M-step in the second subsection
+\end{itemize}
+\subsubsection{Inference in Linear Dynamical Systems}
+\begin{itemize}
+	\item To find the marginal distributions for the latent variables, we use again message passing. The forward equations are denoted with the normalized marginal distributions $\widehat{\alpha}(\bm{z}_n)$:
+	$$p(\bm{z}_n|\bm{x}_1,...,\bm{x}_n) = \widehat{\alpha}(\bm{z}_n) = \mathcal{N}(\bm{z}_n|\bm{\mu}_{n}, \bm{V}_n)$$
+	\item Similarly to the HMM, our forward propagation takes the form:
+	$$c_n \widehat{\alpha}(\bm{z}_n) = p(\bm{x}_n|\bm{z}_n) \int \widehat{\alpha}(\bm{z}_{n-1})p(\bm{z}_n|\bm{z}_{n-1})d\bm{z}_{n-1}$$
+	where we now have an integral instead of the sum, and $c_n$ is a constant making sure of the right scale as $\widehat{\alpha}(\bm{z}_n)$ is normalized.
+	\item Plugging in the Gaussian distributions, we get:
+	\begin{equation*}
+		\begin{split}
+			c_n \mathcal{N}(\bm{z}_n|\bm{\mu}_n, \bm{V}_n) &  = \mathcal{N}(\bm{x}_n|\bm{C}\bm{z}_n, \bm{\Sigma})\int \mathcal{N}(\bm{z}_{n-1}|\bm{\mu}_{n-1}, \bm{V}_{n-1})\mathcal{N}(\bm{z}_n|\bm{A}\bm{z}_{n-1}, \bm{\Sigma})d\bm{z}_{n-1}\\
+			& = \mathcal{N}(\bm{x}_n|\bm{C}\bm{z}_n, \bm{\Sigma}) \mathcal{N}(\bm{z}_n|\bm{A}\bm{\mu}_{n-1}, \underbrace{\bm{\Gamma}+\bm{A}\bm{V}_{n-1}\bm{A}^T}_{\bm{P}_{n-1}})
+		\end{split}
+	\end{equation*}
+	Here we see the first point where the chosen distributions can make a difference. The integral can be calculated due to the Gaussian, and we can get $\bm{\mu}_n$ and $\bm{V}_n$ by applying more mathematical tricks with Gaussians and matrices (which we will not detail here, but can be found in the lecture notes). The end result is:
+	$$\bm{\mu}_N = \bm{A}\bm{\mu}_{n-1} + \bm{K}_n (\bm{x}_n - \bm{C}\bm{A}\bm{\mu}_{n-1}), \hspace{4mm} \bm{V}_n=(\bm{I} - \bm{K}_n\bm{C})\bm{P}_{n-1}$$
+	The important thing here is that without observation, $\bm{\mu}_n$ would be simply $\bm{\mu}_{n-1}$ moved/shifted by $A$, but the second term corrects it for the observation.
+	\item For the EM algorithm, in the backward pass, we get our sufficient statistics:
+	$$\gamma(\bm{z}_n)=\mathcal{N}(\bm{z}_n|\hat{\bm{\mu}}_n, \hat{\bm{V}}_n),\hspace{5mm}\zeta(\bm{z}_{n-1},\bm{z}_n)=\mathcal{N}\left(\begin{bmatrix}
+	\hat{\bm{\mu}}_{n-1} \\ \hat{\bm{\mu}}_{n}
+	\end{bmatrix}, \begin{bmatrix}
+	\hat{\bm{V}}_{n-1} & \bm{J}_{n-1}\hat{\bm{V}}_{n}\\ \hat{\bm{V}}_{n}\bm{J}_{n-1}^T& \hat{\bm{V}}_{n}
+	\end{bmatrix}\right)$$
+\end{itemize}
+\subsubsection{Learning in LDS using EM}
+\begin{itemize}
+	\item Above we have seen the results of the E-step in Linear Dynamical Systems. Now we take a closer look at the M-step, where we want to optimize for the parameters $\bm{\theta}=(\bm{A}, \bm{\Gamma}, \bm{C}, \bm{\Sigma}, \bm{\mu}_0, \bm{V}_0)$
+	\item The complete data likelihood which we want to optimize in expectation to the posterior, is:
+	$$\ln p(\bm{X},\bm{Z}|\bm{\theta}) = \ln p(\bm{z}_1|\bm{\mu}_0, \bm{V}_0) + \sum_{n=2}^{N} \ln p(\bm{z}_n|\bm{z}_{n-1}, \bm{A}, \bm{\Gamma}) + \sum_{n=1}^{N} \ln p(\bm{x}_n|\bm{z}_n,\bm{C},\bm{\Sigma})$$ 
+	\item If we now e.g. want to optimize for $\bm{\mu}_0$ and $\bm{V}_0$, we need to derive $Q(\bm{\theta}, \bm{\theta}^{\text{old}})$ with respect to these variables. The solution for those is:
+	\begin{equation*}
+		\begin{split}
+			\bm{\mu}_0, \bm{V}_0: Q(\bm{\theta}, \bm{\theta}^{\text{old}}) & = -\frac{1}{2}\ln \left|\bm{V}_0\right| - \frac{1}{2}\E_{\bm{z}_1|\bm{\theta}^{\text{old}}}\left[\left(\bm{z}_1 - \bm{\mu}_0\right)^T \bm{V}_0^{-1}(\bm{z}_1 - \bm{\mu}_0)\right] + \text{const}\\
+			\bm{\mu}_0^{\text{new}} & = \E[\bm{z}_1|\bm{\theta}^{\text{old}}]\\
+			\bm{V}_0^{\text{new}} & = \E[\bm{z}_1\bm{z}_1^T|\bm{\theta}^{\text{old}}] - \E[\bm{z}_1|\bm{\theta}^{\text{old}}]\E[\bm{z}_1|\bm{\theta}^{\text{old}}]^T
+		\end{split}
+	\end{equation*}
+\end{itemize}
