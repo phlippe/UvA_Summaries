@@ -157,8 +157,8 @@
 	\item A sufficient but not necessary condition of an invariant $p(x)$ is that it satisfies the property of \underline{detailed balance}:
 	$$p(x_t)T(x_{t+1}|x_t) = p(x_{t+1})T(x_t|x_{t+1})$$
 	This property can be interpreted as the Markov chain being reversible. Although detailed balance is not required, it is mostly easier to fulfill when designing a kernel
-	\item Another property we are looking for is \underline{ergodicity}: for any start distribution $q(x_0)$, the distribution $q(x_N)$ with $N\to\infty$ converges to the required distribution $p^{\star}(x)$. A sufficient condition for ergodicity is that any state $x_N$ has a positive probability, for any $N$.
-	\item If we have an ergodic Markov chain and $p^{\star}(x)$ being an invariant, then $p^{\star}(x)$ is a unique equilibrium
+	\item Another property we are looking for is \underline{ergodicity}. A sufficient condition for ergodicity is that any state $x_N$ has a positive probability, for any $N$.
+	\item If we have an ergodic Markov chain and $p^{\star}(x)$ being an invariant, then $p^{\star}(x)$ is a unique equilibrium, where for any start distribution $q(x_0)$, the distribution $q(x_N)$ with $N\to\infty$ converges to the required distribution $p^{\star}(x)$.
 	\item The sketch of the sampling process is:
 	
 	\begin{algorithm}[H]
