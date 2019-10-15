@@ -99,8 +99,12 @@
 
 	Now, assume we perform a perfect intervention on $X$, i.e. $\Cdo(X=x)$. What happens is that we neglect the effect of $H$ on $X$, \textit{but} we still need to consider the effect of $H$ on $Y$. Hence, the conditional becomes:
 	$$p(y|\Cdo(X=x))=\int p(h)p(y|h,x)dh$$
-	The result indicates that we had to \textit{adjust} the conditional probability for the effect of $H$. But suppose, we would not have the connection between $H$ and $Y$. Then, we would not have to adjust for $H$, and get $p(y|\Cdo(X=x))=p(y|x)$.
-	\item We can derive a more general algorithm for deciding, for which variables we need to \textit{adjust} our conditional probability for. This can be done in a very similar manner to d-separation, as we need to find all variables, that depend on $Y$, but are also depending on the value of $X$. In general, we can determine whether $S$ is a sufficient set of variables we are adjusting by the following check:
+	The important thing is that we have to prevent that changing $X$ influences $H$ by ``back-reasoning'' (i.e. $H$ causes $X$, but observing $X$ gives us information of $H$), which again influence $Y$. This is because we cannot change $H$ by just forcing $X$ to a value, as we \textit{overwrite} the effect of $H$ on $X$. Hence, we have to explicitly remove its dependency on $X$ in the integral.
+	
+	%The result indicates that we had to \textit{adjust} the conditional probability for the effect of $H$. But suppose, we would not have the connection between $H$ and $Y$. Then, we would not have to adjust for $H$, and get $p(y|\Cdo(X=x))=p(y|x)$.
+	\item We can derive a more general algorithm for deciding, for which variables we need to \textit{adjust} our conditional probability for. This can be done in a very similar manner to d-separation, as we need to find all variables, that are implicitly changed by setting $X$ to a certain value (i.e. variables that influence the decision of which value $X$ can have), but then also influence $Y$. We do not want this influence because by forcing $X$ to be a certain value, we cannot change variables that cause $X$. Hence, we are trying to find a set of variables $S$ which break these kind of influences, and remove their dependency with $X$.
+	
+	\item In general, we can determine whether $S$ is a sufficient set of variables we are adjusting by the following check:
 	
 	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Back-door criterion]
 		A set of variables $S$ satisfies the back-door criterion relative to a variable pair ($X$, $Y$), if:
