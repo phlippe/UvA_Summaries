@@ -156,7 +156,7 @@
 		Finally, we can calculate our sufficient statistics:
 		\begin{equation*}
 			\begin{split}
-				\gamma(\bm{z}_n) & = \frac{p(\bm{z}_n, \bm{X}|\bm{\theta}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})} = \frac{\alpha_n(\bm{z}_n)\beta_n(\bm{z}_n)}{\tilde{p}(\bm{X}|\bm{\theta}^{\text{old}})}\\
+				\gamma(\bm{z}_n) & = \frac{p(\bm{z}_n, \bm{X}|\bm{\theta}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})} = \frac{\alpha_n(\bm{z}_n)\beta_n(\bm{z}_n)}{p(\bm{X}|\bm{\theta}^{\text{old}})}\\
 				\zeta(\bm{z}_{n-1},\bm{z}_n) & = \frac{p(\bm{z}_{n-1},\bm{z}_n,\bm{X}|\bm{\theta}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})} = \frac{\alpha_{n-1}(\bm{z}_{n-1})\beta_n(\bm{z}_n)p(\bm{z}_n|\bm{z}_{n-1}, \bm{A}^{\text{old}})p(\bm{x}_n|\bm{z}_n, \bm{\phi}^{\text{old}})}{p(\bm{X}|\bm{\theta}^{\text{old}})}			
 			\end{split}
 		\end{equation*}

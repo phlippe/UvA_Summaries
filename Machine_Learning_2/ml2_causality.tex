@@ -1,6 +1,6 @@
 \section{Causality}
 \begin{itemize}
-	\item Causality is about testing whether one event (\textit{effect}) is the result of the occurrence of another event (\textit{cause}), i.e. a change in the effect will lead to a change in the cause. It differs from correlation by \textit{explaining}/\textit{finding} the relationship behind variables
+	\item Causality is about testing whether one event (\textit{effect}) is the result of the occurrence of another event (\textit{cause}), i.e. a change in the cause will lead to a change in the effect. It differs from correlation by \textit{explaining}/\textit{finding} the relationship behind variables
 	\item While we look at the data distribution for correlation, we are focusing on the generation mechanism of the data in causality. While in statistics we then like to predict the next observation (or its likelihood), causality is interested in what happens if we perform interventions (setting a variable to a certain value)
 	\item The most important operator in causality is the \textbf{do-operator}: $p(A=a|\Cdo(B=b))$. It differs from the standard conditional probability as follows by not assuming that we have observed $B=b$, but that we externally set the value of $B$. This means that we cannot infer anything from its parents as in standard conditionals (if we observe $B=b$, then this usually gives us information about its parents).
 	
