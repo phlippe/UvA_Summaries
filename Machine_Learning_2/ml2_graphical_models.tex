@@ -50,8 +50,8 @@
 	\item There is a simple way for creating a Bayesian network for a given statistical model.
 	\begin{enumerate}
 		\item Determine the ordering of the variables (``\textit{topological ordering}'')
-		\item In this ordering, call the parents of the random variable $X_i$: $\text{pa}_i$, or $\text{pa}(X_i)$ which is a subset of variables with lower ordering: $\text{pa}_i \subseteq \left\{X_1,...,X_{i-1}\right\}$. The joint probability distribution can be written as:
-		$$p(X_1,...,X_M) = \prod_{i=1}$$
+		\item In this ordering, call the parents of the random variable $X_i$: $\text{pa}_i$, or $\text{pa}(X_i)$ which is a subset of variables with lower ordering: $\text{pa}_i \subseteq \left\{1,...,i-1\right\}$. The joint probability distribution can be written as:
+		$$p(X_1,...,X_M) = \prod_{i=1}^{M}p(X_i|X_{\text{pa}_i})$$
 		\item In the graphical model, draw an edge from $X_i$ to $X_j$ if $j\in \text{pa}_i$
 	\end{enumerate}
 	\item \underline{Example}: (first-order) Markov Chain
@@ -135,7 +135,7 @@
 	\item We call $X$ and $Y$ being independent iff $p(X,Y)=p(X)p(Y)$. The notation for this is $X\independent Y$
 	\item $X$ is \textit{conditionally} independent of $Y$ given $Z$ if $p(X,Y|Z)=p(X|Z)p(Y|Z)$. The notation for this is $X\independent Y|Z$. Note that if $X$ and $Y$ are generally independent, we can also write $X\independent Y|\emptyset$
 	\item For proving/testing conditional independence, we can use \textbf{d-separation}. Supposed $A$, $B$, $C$ are sets of variables. If $A$ is d-separated from $B$ given $C$, then $p(X_A,X_B|X_C)=p(X_A|X_C)p(X_B|X_C)$, which we can also write as $A\perp B|C\implies X_A\independent X_B|X_C$ 
-	\item Note that the other way round, $X_A\independent X_B|X_C\not\implies A\perp B|C $ is not always valid (but mostly) as we will show in a later example. Hence, if $A$ and $B$ are not d-separated, it does not necessarily mean that $X_A$ and $X_B$ are not conditional independent.
+	\item Note that the other way round, $X_A\independent X_B|X_C\not\Rightarrow A\perp B|C $ is not always valid (but mostly) as we will show in a later example. Hence, if $A$ and $B$ are not d-separated, it does not necessarily mean that $X_A$ and $X_B$ are not conditional independent.
 	
 	\item The algorithm can be summarized as follows:
 	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=D-separation]
