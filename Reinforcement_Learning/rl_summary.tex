@@ -1,0 +1,86 @@
+\documentclass[a4paper]{article} 
+\addtolength{\hoffset}{-2.25cm}
+\addtolength{\textwidth}{4.5cm}
+\addtolength{\voffset}{-3.25cm}
+\addtolength{\textheight}{5cm}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0in}
+
+\usepackage{blindtext} % Package to generate dummy text
+\usepackage{charter} % Use the Charter font
+\usepackage[utf8]{inputenc} % Use UTF-8 encoding
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage[english]{babel} % Language hyphenation and typographical rules
+\usepackage{amsthm, amsmath, amssymb, amsfonts, nccmath} % Mathematical typesetting
+\usepackage{float} % Improved interface for floating objects
+\usepackage[final, colorlinks = true, 
+linkcolor = black, 
+citecolor = black]{hyperref} % For hyperlinks in the PDF
+\usepackage{graphicx, multicol} % Enhanced support for graphics
+\usepackage{xcolor} % Driver-independent color extensions
+\usepackage{marvosym, wasysym} % More symbols
+\usepackage{rotating} % Rotation tools
+\usepackage{subcaption}
+\usepackage{wrapfig}
+% \usepackage{geometry}
+\usepackage{censor} % Facilities for controlling restricted text
+\newcommand{\note}[1]{\marginpar{\scriptsize \textcolor{red}{#1}}} % Enables comments in red on margin
+\usepackage{bm}
+\usepackage{blkarray}
+\usepackage{enumitem}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
+
+\usepackage{tcolorbox}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\loss}[0]{\mathcal{L}}
+\newcommand{\chain}[3]{\frac{\partial #1}{\partial #2}\frac{\partial #2}{\partial #3}}
+% \newcommand{\eq}[1]{\begin{equation*}\begin{split}#1\end{split}\end{equation*}}
+\newcommand{\TODO}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\E}[0]{\mathbb{E}} % Expectation
+\newcommand{\R}[0]{\mathbb{R}} % Real numbers
+\newcommand{\Cdo}[0]{\textnormal{do}}
+\newcommand{\Prob}[1]{\Pr\left\{#1\right\}} % Real numbers
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand*{\QED}{\hfill\ensuremath{\blacksquare}}%
+
+\definecolor{green}{RGB}{0,160,0}
+\definecolor{blue}{RGB}{0,0,160}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{orange}{RGB}{200,160,0}
+\definecolor{purple}{RGB}{170,0,200}
+\definecolor{cyan}{RGB}{0,200,200}
+\definecolor{lightred}{RGB}{200,50,50}
+
+\setcounter{tocdepth}{2}
+% Title Page
+\title{Summary Reinforcement Learning}
+\author{Phillip Lippe}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\input{rl_introduction.tex}
+\newpage
+\input{rl_tabular_methods.tex}
+\newpage
+\input{rl_learning_with_approx.tex}
+\newpage
+\input{rl_policy_gradient_methods.tex}
+\newpage 
+\input{rl_model_based.tex}
+\newpage
+\input{rl_partially_observable.tex}
+\newpage
+\appendix
+\newpage
+\input{rl_appendix.tex}
+
+\end{document}
