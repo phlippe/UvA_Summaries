@@ -116,7 +116,7 @@
 	\begin{equation*}
 		\begin{split}
 		\text{Left to right: }\hspace{2mm}w_{t+1} & = w_t + \alpha (\gamma \cdot 2w_t-w_t)\nabla_w w_t = (1+\alpha(2\gamma-1)) w_t\\
-		\text{Right to left: }\hspace{2mm}w_{t+1} & = w_t + \alpha (\gamma w_t-2w_t)\nabla_w 2w_t = (1-2\alpha((1-2\gamma))) w_t\\
+		\text{Right to left: }\hspace{2mm}w_{t+1} & = w_t + \alpha (\gamma w_t-2w_t)\nabla_w 2w_t = (1+2\alpha(1-2\gamma)) w_t\\
 		\end{split}
 	\end{equation*}
 	Overall, we would converge to $w=0$ as the right to left update is twice as high as the other.
