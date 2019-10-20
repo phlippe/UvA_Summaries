@@ -52,7 +52,7 @@
 		\item Determine the ordering of the variables (``\textit{topological ordering}'')
 		\item In this ordering, call the parents of the random variable $X_i$: $\text{pa}_i$, or $\text{pa}(X_i)$ which is a subset of variables with lower ordering: $\text{pa}_i \subseteq \left\{1,...,i-1\right\}$. The joint probability distribution can be written as:
 		$$p(X_1,...,X_M) = \prod_{i=1}^{M}p(X_i|X_{\text{pa}_i})$$
-		\item In the graphical model, draw an edge from $X_i$ to $X_j$ if $j\in \text{pa}_i$
+		\item In the graphical model, draw an edge from $X_j$ to $X_i$ if $j\in \text{pa}_i$
 	\end{enumerate}
 	\item \underline{Example}: (first-order) Markov Chain
 	\begin{itemize}
