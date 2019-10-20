@@ -13,7 +13,7 @@
 \subsection{Types of function approximations}
 \begin{itemize}
 	\item There are various function approximation techniques we can use. We will review here a few, practical/simple ones
-	\item In general, we distinguish between Linear and non-linear function approximation. We call an approximation linear if the value function is linear with respect to the weight, namely:
+	\item In general, we distinguish between linear and non-linear function approximation. We call an approximation linear if the value function is linear with respect to the weight, namely:
 	$$\hat{v}(s,\bm{w})=\bm{w}^T\bm{x}(s)$$
 	where $\bm{x}(s)$ can be any (non-)linear functions. It can be also seen as a linear combination of static feature extractions. Some examples for $\bm{x}$ are:
 	\begin{itemize}
@@ -37,22 +37,22 @@
 \end{itemize}
 \subsection{Prediction objective for on-policy prediction}
 \begin{itemize}
-	\item In the case that we perform a on-policy prediction (i.e. policy evaluation for a fixed policy), the state importance is based on the visit frequency of $\pi$. To arrive to $\mu$, we also have to distinguish between the tasks:
+	\item In the case that we perform a on-policy prediction (i.e. policy evaluation for a fixed policy), the state importance is based on the visit frequency of $\pi$. To arrive at $\mu$, we also have to distinguish between the tasks:
 	\begin{itemize}
 		\item If we have a continuing task (never ending), we get a stationary distribution at the point:
-		$$\mu_{\pi}(s)=\sum_{s'}\sum_{a}p(s|s',a)\pi(a|s)\mu_{\pi}(s')$$
+		$$\mu_{\pi}(s)=\sum_{s'}\sum_{a}p(s|s',a)\pi(a|s')\mu_{\pi}(s')$$
 		with the condition that we can reach every state from the start.
 		\item For episodic tasks, we need to consider the start frequency $h(s)$ as well. To guarantee that $\mu(s)$ is a distribution, we can use a softmax:
-		$$\mu_{\pi}(s)=\frac{\eta(s)}{\sum_{s'}\eta(s')}, \hspace{4mm}\eta(s)=h(s)+\sum_{s'}\sum_a p(s|s',a)\pi(a|s)\eta(s)$$
+		$$\mu_{\pi}(s)=\frac{\eta(s)}{\sum_{s'}\eta(s')}, \hspace{4mm}\eta(s)=h(s)+\sum_{s'}\sum_a p(s|s',a)\pi(a|s')\eta(s')$$
 		where the second part is pretty much the same as before.
 	\end{itemize} 
-	\item In order to calculate the gradients $\nabla_{\bm{w}}\overline{\text{VE}}(\bm{w})$, we would need to know $\mu(s)$ which is not possible due to missing information of the environemnt dynamics ($p(s'|s,a)$). However, we can approximate it by Monte-Carlo samples such that:
-	$$\nabla_{\bm{w}}\overline{\text{VE}}(\bm{w})\approx \nabla_{\bm{w}}\left[G_t - \hat{v}(S_t,\bm{w})\right]^2 = 2\cdot \left[G_t - \hat{v}(S_t,\bm{w})\right] \nabla_{\bm{w}}\hat{v}(S_t,\bm{w})$$
+	\item In order to calculate the gradients $\nabla_{\bm{w}}\overline{\text{VE}}(\bm{w})$, we would need to know $\mu(s)$ which is not possible due to missing information of the environment dynamics ($p(s'|s,a)$). However, we can approximate it by Monte-Carlo samples such that:
+	$$\nabla_{\bm{w}}\overline{\text{VE}}(\bm{w})\approx \nabla_{\bm{w}}\left[G_t - \hat{v}(S_t,\bm{w})\right]^2 = -2\cdot \left[G_t - \hat{v}(S_t,\bm{w})\right] \nabla_{\bm{w}}\hat{v}(S_t,\bm{w})$$
 	Which leads us to the \textbf{Gradient Monte Carlo} algorithm:
 	$$\bm{w}_{t+1}=\bm{w}_{t}+\alpha \left[G_t - \hat{v}(S_t,\bm{w})\right] \nabla_{\bm{w}}\hat{v}(S_t,\bm{w})$$
 	\item Alternatively, we could also think about using the bootstrapping estimate as target, which gives us the following update rule:
-	$$\bm{w}_{t+1}=\bm{w}_t + \alpha\underbrace{\left[R + \gamma\hat{v}(s',\bm{w}_t) - \hat{v}(S_t,\bm{w}_t)\right]}_{\text{TD error }\delta}\nabla_{\bm{w}}\hat{v}(S_t,\bm{w}_t)$$  
-	This method is called \textbf{Semi-gradient TD(0)}, and indicates by its name that it is not a true gradient. The reason for that is that we actually ignore the dependency of the target on $\bm{w}$. We assume it to be fixed.  Nevertheless, experiments with the true gradient have shown that the semi-gradient works much better in practice.
+	$$\bm{w}_{t+1}=\bm{w}_t + \alpha\underbrace{\left[R_{t+1} + \gamma\hat{v}(S_{t+1},\bm{w}_t) - \hat{v}(S_t,\bm{w}_t)\right]}_{\text{TD error }\delta}\nabla_{\bm{w}}\hat{v}(S_t,\bm{w}_t)$$  
+	This method is called \textbf{Semi-gradient TD(0)}, and indicates by its name that it is not a true gradient. The reason for that is that we actually ignore the dependency of the target on $\bm{w}$. We assume it to be fixed.  Nevertheless, experiments with the true gradient have shown that the semi-gradient works much better in practice. We will discuss it later in more detail.
 	
 	Note that as in the value-based, we can extend this approach to $n$-step if wanted.
 	\item When comparing Gradient MC and semi-gradient TD(0), we get the same arguments as for the tabular case in Section~\ref{sec:value_based_tabular_difference_TD_MC} $\Rightarrow$ TD has lower variance and learns usually faster, but can have a bias (see below)
@@ -68,7 +68,7 @@
 \begin{itemize}
 	\item The advantages of linear function approximations are that the gradients are easy to calculate ($\nabla_{\bm{w}}\hat{v}(s,\bm{w})=\bm{x}(s)$). Furthermore, it can be proven that all local optima are global optima, so that gradient MC converges to the minimum of $\overline{\text{VE}}$. This is not necessarily the case for semi-gradient TD but we can define a upper bound $\overline{\text{VE}}(\bm{w}_{td})\leq \frac{1}{1-\gamma}\min_{\bm{w}}\overline{\text{VE}}(\bm{w})$ and guarantee that it converges. 
 	
-	In the non-linear, we cannot guarantee convergence for semi-gradient TD (but for Gradient Monte Carlo), and we might end up in local optima. Nevertheless, linear features are much more restricted than non-linear as neural networks. This can lead to better results, even if we might get stuck in local optima.
+	In the non-linear case, we cannot guarantee convergence for semi-gradient TD (but for Gradient Monte Carlo), and we might end up in local optima. Nevertheless, linear features are much more restricted than non-linear as neural networks. Hence, non-linear methods can lead to better results, even if we might get stuck in local optima.
 	
 	\item When learning via Gradient Monte Carlo or Semi-gradient TD, we have to select a step size $\alpha$. This can be a bit more tricky here because we combine the values of many states into a single function. In case of linear function approximation, we can actually give a rule of thumb because the features are static, namely:
 	$$\alpha = (\tau\E[\bm{x}^T\bm{x}])^{-1}$$
@@ -90,20 +90,20 @@
 			\hat{\bm{b}}_t & = \sum_{k=0}^{t-1}R_{k+1}\bm{x}_k
 		\end{split}
 	\end{equation*}
-	where $\epsilon$ is a small constant ensuring that $\bm{\hat{A}}$ is always invertible. This solution is usually more sample efficient because we do not have to perform iterative updates, and has the benefit of not requiring a step size. However, it is more computationally expensive (quadratic plus the invert of $\bm{A}$), and we cannot adapt to a change in the environment over time (once performed, we fix our weights)
+	where $\epsilon$ is a small constant ensuring that $\bm{\hat{A}}$ is always invertible. This solution is called \textbf{least-squares temporal-difference (LSTD)}, and is usually more sample efficient because we do not have to perform iterative updates, and has the benefit of not requiring a step size. However, it is more computationally expensive (quadratic plus the invert of $\bm{A}$), and we cannot adapt to a change in the environment over time (once performed, we fix our weights)
 \end{itemize}
 \subsection{Control with approximation}
 \begin{itemize}
 	\item For learning a policy $\pi$, we again change our objective to learning the $q$-values, which we now approximate with $\hat{q}(s,a,\bm{w})$. We will focus on episodic cases, but note that everything could be generalized to the continuous case as well.
 	\item In the \textbf{on-policy} case, we can use methods like (episodic) semi-gradient SARSA, so that our update step is:
 	$$\bm{w}_{t+1}=\bm{w}+\alpha\left[U_t - \hat{q}(S_t,A_t,\bm{w})\right]\nabla_{\bm{w}}\hat{q}(S_t,A_t,\bm{w})$$
-	where $U_t$ is our target, which is in one-step SARSA $U_t = R_t + \gamma \hat{q}(S_{t+1},A_{t+1},\bm{w}))$.
+	where $U_t$ is our target, which is for one-step SARSA $U_t = R_t + \gamma \hat{q}(S_{t+1},A_{t+1},\bm{w})$.
 	As usual, we iterate over this update rule while setting our policy to $\epsilon$-greedy on $\hat{q}$.
 	\item In the \textbf{off-policy} case, we experience more problems. As we have a behavior policy $b$ and target policy $\pi$, we need to use importance weight to correct the target of the update:
 	$$\bm{w}_{t+1}=\bm{w}+\rho \alpha\left[U_t - \hat{q}(S_t,A_t,\bm{w})\right]\nabla_{\bm{w}}\hat{q}(S_t,A_t,\bm{w})$$
 	Although it increases variance, it is necessary to guarantee unbiased, correct estimates.
 	
-	The second is that we need to take the changed state distribution, $\mu_b$, into account. Consider for example the very simple MDP in Figure~\ref{fig:rl_approximation_value_based_offpolicy_divergence} for which we just want to estimate $v$ (policy evaluation). We assume the reward for any action to be $0$, and start with an initial value of $w=10$.
+	The second issue is that we need to take the changed state distribution, $\mu_b$, into account. Consider for example the very simple MDP in Figure~\ref{fig:rl_approximation_value_based_offpolicy_divergence} for which we just want to estimate $v$ (policy evaluation). We assume the reward for any action to be $0$, and start with an initial value of $w=10$.
 		
 	\begin{figure}[ht!]
 		\centering
@@ -129,7 +129,7 @@
 	\end{equation*}
 	which makes $w_t$ head to infinity if $\gamma>0.5$. This shows that off-policy prediction can diverge!
 	
-	\item This divergence can occur when the following three methods are used together:
+	\item This divergence can occur when the following three methods are used together (\textit{Deadly Triad}):
 	\begin{itemize}
 		\item Function approximation
 		\item Semi-gradient bootstrapping
@@ -153,15 +153,18 @@
 		\item First, we need to consider how we measure distance between two value functions. The standard euclidean norm is not sufficient, as we give importance to different states. This is why we take $\mu$ into account:
 		$$||v_1-v_2||_{\mu}^2 = \sum_{s\in\mathcal{S}} \mu(s)\left[v_1(s)-v_2(s)\right]^2$$
 		\item Given the norm, we also want to define a \textit{projection operator} which assign to an arbitrary $v$ (over whole state space) the closest value function based on the norm that can be represented:
-		$$\Pi v = v_{\bm{w}}\hspace{3mm}\text{where}\hspace{3mm}\bm{w}=\arg\min_{\bm{w}}||v-v_{\bm{w}}||_{\mu}^2 $$
+		$$\Pi v = v_{\bm{w}}\hspace{3mm}\text{where}\hspace{3mm}\bm{w}=\arg\min_{\tilde{\bm{w}}}||v-v_{\tilde{\bm{w}}}||_{\mu}^2 $$
 		\item The last notation we want to introduce is the Bellman operator, which maps a value function $v$ to its bootstrapping estimates:
-		$$(B_{\pi}v)(s) = \sum_a \pi(a|s)\sum_{s',r}p(s',r|s,a)[r+\gamma v(s')] = v_{\bm{w}} + \overline{\delta}_{\bm{w}}$$
+		$$(B_{\pi}v_{\bm{w}})(s) = \sum_a \pi(a|s)\sum_{s',r}p(s',r|s,a)[r+\gamma v_{\bm{w}}(s')] = v_{\bm{w}}(s) + \overline{\delta}_{\bm{w}}(s)$$
+		with $\overline{\delta}_{\bm{w}}(s)$ being the expected TD error for state $s$.
 	\end{itemize}
 	\item The value error $\overline{\text{VE}}$ is minimized if the norm is the lowest to $v_{\pi}$: $$\min_{\bm{w}} \overline{\text{VE}}(\bm{w}) = \min_{\bm{w}} ||v_{\bm{w}}-v_{\pi}||_{\mu}^2 $$
 	The projected point, which we can actually reach, is $\Pi v_{\pi}$ which is the best point we can represent in our $\bm{w}$-space. Gradient Monte Carlo methods converge to this point, but mostly quite slowly
 	\item Without the approximation, we could simply apply the Bellman operator  over and over again, and reach $v_{\pi}$ (as in tabular TD(0) learning) which is the gray line above. However, we cannot represent the change so that we have to project $v$ after each step: $\Pi B_{\pi}v_{\bm{w}}$. The step we take in between is the projected Bellman error $PBE=\Pi\delta_{\bm{w}}$ 
 	
-	Semi-gradient TD is converging to the point where $PBE=0$ as we reach a fix-point there. However, this does not have to be where the minimum Bellman error is reached because imagine $\delta_{\bm{w}}$ being orthogonal to $\bm{w}$-subspace. Then, the projected bellman error is 0, but without projection, we would continue changing $\bm{w}$, until we reach $\min \overline{\text{BE}}$
+	Semi-gradient TD is converging to the point where $PBE=0$ as we reach a fix-point there. However, this does not have to be where the minimum Bellman error is reached because imagine $\delta_{\bm{w}}$ being orthogonal to $\bm{w}$-subspace. Then, the projected bellman error is 0, but without projection, we would continue changing $\bm{w}$, until we reach $\min \overline{\text{BE}}$.
+	
+	At the same time, even if we would reach $\min \overline{\text{BE}}$, it would be most likely not be a optimum (i.e. gradients greater than zero) because the gradients can point to outside the representable $\bm{w}$-space (does not need to be orthogonal as before), and hence the projected Bellman error can be unequals zero.
 	
 	\item The last objective we consider here is the true-gradient TD error, meaning: $$\overline{\text{TDE}}(\bm{w})=\sum_{s\in\mathcal{S}}\mu(s)\E\left[\delta_t^2 |S_t=s,A_t\sim \pi\right] = \E_{b}[\rho_t \delta_t^2] \hspace{4mm}\text{(if we assume $\mu$ is under $b$)}$$
 	Following SGD updates, we get:
@@ -183,12 +186,12 @@
 	for which the optimal is actually $v(A)=1/2, v(B)=3/4, v(C)=1/4$ because we also minimize the distance between $v(A)$ and $v(B)$, and similarly between $v(A)$ and $v(C)$.
 	
 	\item For calculating the Bellman error ($\min \text{BE}$), we need to calculate:
-	$$\overline{\text{BE}}||\overline{\delta}_{\bm{w}}||_{\mu}^2\hspace{2mm}\text{where}\hspace{2mm}\overline{\delta}_{\bm{w}}=\E_{\pi}\left[\delta_{\bm{w}}|S_t=s,A_t\sim\pi\right]$$
-	As we have the square in the error, to guarantee an unbiased estimate, we need to sample two times independently (otherwise we estimate $\E[\delta^2]$ instead of $\E[\delta]^2$). This is mostly not possible in interactions to obtain, or makes the algorithm rather slow.
+	$$\overline{\text{BE}}=||\overline{\delta}_{\bm{w}}||_{\mu}^2\hspace{2mm}\text{where}\hspace{2mm}\overline{\delta}_{\bm{w}}=\E_{\pi}\left[\delta_{\bm{w}}|S_t=s,A_t\sim\pi\right]$$
+	As we have the square in the error, to guarantee an unbiased estimate, we need to sample at least two times independently (otherwise we estimate $\E[\delta^2]$ instead of $\E[\delta]^2$). This is mostly not possible in interactions to obtain, or makes the algorithm rather slow.
 	
 	\item The last remaining objective is the mean squared projected Bellman error $\overline{\text{PBE}}$. We can derive at the following gradient for PBE:
 	$$\nabla_{\bm{w}} \overline{\text{PBE}}(\bm{w}) = 2\E[\rho_t (\gamma \bm{x}_{t+1}-\bm{x}_t)\bm{x}_t^T]\E[\bm{x}_t\bm{x}_t^T]^{-1}\E[\rho_t\delta_t\bm{x}_t]$$
-	Using the same samples for all the expectations give the same bias as the one for the Bellman error. What we can do, however, is learning some factors from all the data, namely the last two, and denote it as $\bm{v}_t=\E[\bm{x}_t\bm{x}_t^T]^{-1}\E[\rho_t\delta_t\bm{x}_t]$. Then, we can perform SGD as:
+	Using the same samples for all the expectations gives the same bias as the one for the Bellman error. What we can do, however, is learning some factors from all the data, namely the last two, and denote it as $\bm{v}_t=\E[\bm{x}_t\bm{x}_t^T]^{-1}\E[\rho_t\delta_t\bm{x}_t]$. Then, we can perform SGD as:
 	\begin{equation*}
 		\begin{split}
 			\bm{v}_{t+1} & = \bm{v}_t + \beta \rho_t (\delta_t - \bm{v}_t^T \bm{x}_t)\bm{x}_t\\

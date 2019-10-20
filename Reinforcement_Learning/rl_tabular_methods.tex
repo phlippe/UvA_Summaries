@@ -12,7 +12,7 @@
 		\item Perform ``exploring starts'', meaning that we randomly sample our start state $(S_0,A_0)$. However, note that this requires an environment where we can set the agent to any position, which is not always possible (e.g. in physical systems, hard to initialize velocity or acceleration)
 		\item Use policy that visits every state and actions with non-zero probability. 
 	\end{itemize}
-	\item As the random starts are often not possible, we mostly choose to integrate exploration into our policy. We can either do this by updating our policy to \textit{towards} the greedy one, but not match it exactly (called \textbf{on-policy}). Or we sample from a non-greedy behavior policy but update with respect to our greedy one (called \textbf{off-policy}).
+	\item As the random starts are often not possible, we mostly choose to integrate exploration into our policy. We can either do this by updating our policy \textit{towards} the greedy one, but not match it exactly (called \textbf{on-policy}). Or we sample from a non-greedy behavior policy but update with respect to our greedy one (called \textbf{off-policy}).
 \end{itemize}
 \subsubsection{On-policy MC}
 \begin{itemize}
@@ -27,13 +27,13 @@
 	To show that we improve, we need to show that $v_{\pi'}(s)\geq v_{\pi}(s)$. As the stochastic part $\frac{\epsilon}{|\mathcal{A}(s)|} \sum_a q_{\pi}(s,a)$ is unaffected by $\pi$, we only have to compare the greedy part:
 	\begin{equation*}
 		\begin{split}
-			\sum_{a}\frac{\pi'(a|s)-\epsilon}{1-\epsilon} q_{\pi}(s,a) \geq \sum_{a}\frac{\pi(a|s)-\epsilon}{1-\epsilon} q_{\pi}(s,a)\\
+			\sum_{a}\frac{\pi'(a|s)-\frac{\epsilon}{|\mathcal{A}(s)|}}{1-\epsilon} q_{\pi}(s,a) \geq \sum_{a}\frac{\pi(a|s)-\frac{\epsilon}{|\mathcal{A}(s)|}}{1-\epsilon} q_{\pi}(s,a)\\
 		\end{split}
 	\end{equation*}
 	where we can put in $\pi'$ as the greedy policy:
 	\begin{equation*}
 		\begin{split}
-			\max_a q_{\pi}(s,a) \geq \sum_{a}\frac{\pi(a|s)-\epsilon}{1-\epsilon} q_{\pi}(s,a)
+			\max_a q_{\pi}(s,a) \geq \sum_{a}\frac{\pi(a|s)-\frac{\epsilon}{|\mathcal{A}(s)|}}{1-\epsilon} q_{\pi}(s,a)
 		\end{split}
 	\end{equation*}
 	This is obviously true because there is no actions besides the greedy one which gives higher reward. 
@@ -41,7 +41,7 @@
 \end{itemize}
 \subsubsection{Off-policy MC}
 \begin{itemize}
-	\item In off-policy, we have a behavior policy $b$ from which we sample the trajectories, and our greedy target policy $\pi$. The only constraint on $b$ is that for any action where $\pi(a|s)>0$, then $b$ also need to be $b(a|s)>0$. We can ensure this by any $\epsilon$-soft policy
+	\item In off-policy, we have a behavior policy $b$ from which we sample the trajectories, and our greedy target policy $\pi$. The only constraint on $b$ is that for any action where $\pi(a|s)>0$, $b$ also needs to be $b(a|s)>0$. We can ensure this by any $\epsilon$-soft policy
 	\item When sampling, we need to correct for the fact that we use samples from $b$ to evaluate an expectation over $\pi$. One way of doing so is importance sampling:
 	$$v_{\pi}(s) \approx \frac{1}{N}\sum_{n=1}^{N} \frac{p(\tau^{n}_{t}|s,A_t\sim\pi)}{p(\tau^{n}_{t}|s,A_t\sim b)} G(\tau_{t}^{n})$$
 	where $\tau^{n}_{t}$ is the $n$-th trajectory starting from time step $t$ till the end. We can rewrite the importance weights as $\rho_{t:T-1}=\frac{\prod_{k=t}^{T-1}\pi(A_k|S_k)}{\prod_{k=t}^{T-1}b(A_k|S_k)}$. Note that the transition probabilities between $S_{t}$ and $S_{t+1}$ cancel out as they are the same for $\pi$ and $b$.
@@ -66,7 +66,7 @@
 	
 	Furthermore, to perform the averaging efficiently, we need to keep track of the normalization constant which is the sum of all importance weights for a certain state-action pair. This we will store in $C$. 
 	
-	In case we use a greedy policy for $\pi$, we can simply the algorithm further. In the importance weight, $\pi(A_t|S_t)$ is 1 if $A_t$ was the greedy action, otherwise, we have a factor of 0 (which gives $\rho=0$ for all previous actions). If we update our states in a reverse manner, this means that we can stop the loop as soon as we hit a sub-optimal action. 
+	In case we use a greedy policy for $\pi$, we can simplify the algorithm further. In the importance weight, $\pi(A_t|S_t)$ is 1 if $A_t$ was the greedy action, otherwise, we have a factor of 0 (which gives $\rho=0$ for all previous actions). If we update our states in a reverse manner, this means that we can stop the loop as soon as we hit a sub-optimal action. 
 	
 	Note that $W$ can get fairly large for long trajectories, as $b(A|S)$ is always smaller than 1. We need to use weighted importance sampling instead of ordinary as otherwise, the variance is too high. In addition, as only the tails of the episode are updated frequently, we might have an insufficient amount of samples for the states close to the start, which makes the algorithm inefficient.
 	
@@ -78,7 +78,7 @@
 	\item After reviewing two alternative ways of learning a policy for a given environment, we can consider what are the advantages and drawbacks of each of the methods
 	\item In general, we can note that off-policy is actually a generalization of on-policy because if we set the behavior policy equal to our target policy, i.e. $b=\pi$, then off-policy becomes on-policy
 	\item Commonly, on-policy converges faster as it uses the samples from the same policy it updates for. Off-policy can introduce variance by correcting the estimates for the target policy, as e.g. the importance weight can vary a lot if $\pi$ and $b$ are quite different. This can lead to slow convergence.
-	\item A benefit of off-policy is however that we can learn from already recorded data, eventually from another source, as only our updates are based on the current policy $\pi$, and not the actual samples as in on-policy. This means that we could we use the same data to evaluate multiple policies, which especially helps for limited data/interactions with the environment.
+	\item A benefit of off-policy is however that we can learn from already recorded data, eventually from another source, as only our updates are based on the current policy $\pi$, and not the actual samples as in on-policy. This means that we could use the same data to evaluate multiple policies, which especially helps for limited data/interactions with the environment.
 	\item Another point to consider is that off-policy methods allow us to learn the actual greedy policy. This is not possible in the on-policy setting because for guaranteeing the convergence to the correct $q$-values, we need to give every state-action pair a chance greater than zero to be visited. Using an $\epsilon$-soft policy in the on-policy method and greedifying it afterwards can lead to a good approximation, but we also need to keep in mind that we then learn the optimal $\epsilon$-soft policy, and not the strictly the optimal greedy policy. Hence, our final moves might be sub-optimal (remember Cliff-World, Sutton Book Example 6.6, page 132)
 \end{itemize}
 
@@ -97,7 +97,7 @@
 	\item The update rule of SARSA is as follows:
 	$$Q(S_t,A_t)\leftarrow Q(S_t,A_t) + \alpha\left[R_{t+1}+\gamma Q(S_{t+1},A_{t+1})-Q(S_t,A_t)\right]$$
 	where $A_{t+1}$ is selected by the policy $\pi$ based on $S_{t+1}$. Note that $Q(S_{t+1},A_{t+1})=0$ for the terminal state.
-	\item The method got it name from using $\bm{S}_t$, $\bm{A}_t$, $\bm{R}_{t+1}$, $\bm{S}_{t+1}$, $\bm{A}_{t+1}$ in its update rule.
+	\item The method got its name from using $\bm{S}_t$, $\bm{A}_t$, $\bm{R}_{t+1}$, $\bm{S}_{t+1}$, $\bm{A}_{t+1}$ in its update rule.
 	\item Note that SARSA is a \textbf{on-policy} method, meaning that it learns the $q$-values of the policy $\pi$ (see Section~\ref{sec:value_based_tabular_on_off_policy} for discussion of benefits and drawbacks)
 	\item Instead of just using the next sample to estimate $Q(S_{t+1},A_{t+1})$, we could also take our policy into account as we can calculate the expectation operator over it instead of simply sampling:
 	\begin{equation*}
@@ -125,7 +125,7 @@
 		\label{fig:rl_tabular_methods_maximization_bias}
 	\end{figure}
 
-	\item To overcome this bias, we have to prevent to take the maximum of the estimates as an estimate of the maximum of the true values.So, intuitively, we need to determine the maximizing action from somewhere else than our estimates we are trying to update.
+	\item To overcome this bias, we have to prevent to take the maximum of the estimates as an estimate of the maximum of the true values. So, intuitively, we need to determine the maximizing action from somewhere else than our estimates we are trying to update.
 	\item A simple method of doing so is \textbf{Double Q-Learning}. Instead of learning a single $q$-function, we learn two, almost independently. Now, we can update $Q_1$ by using the maximum operator over $Q_2$, and vice versa. By that, we overcome the positive bias as even if $Q_1$ and $Q_2$ are biased themselves, they are positively biased on different actions. 
 	\item The general update rule is then:
 	\begin{equation*}
@@ -140,10 +140,10 @@
 \subsubsection{N-step TD learning}
 \begin{itemize}
 	\item As we will discuss in Section~\ref{sec:value_based_tabular_difference_TD_MC} in detail, both MC and TD have certain advantages and drawbacks. However, we can actually interpolate between these two, which we call $n$-step TD (a generalization of TD(0))
-	\item Instead of bootstrapping on the next state, we could use the reward of the $R_{t+2}$ as well, and then bootstrap on $v(S_{t+2})$. This leads to $1$-step TD. It gets obvious, that if we bootstrap always on the terminal state, meaning $\infty$-TD, we arrive at MC as the value of a terminal state is zero. So, we approximate the return $G_{t:t+n}$ for $n$-step TD by:
+	\item Instead of bootstrapping on the next state, we could use the reward of the $R_{t+2}$ as well, and then bootstrap on $v(S_{t+2})$. This leads to $2$-step TD. It gets obvious, that if we bootstrap always on the terminal state, meaning $\infty$-TD, we arrive at MC as the value of a terminal state is zero. So, we approximate the return $G_{t:t+n}$ for $n$-step TD by:
 	$$G_{t:t+n} = R_{t+1}+\gamma R_{t+2} + ... + \gamma^{n-1}R_{t+n} + \gamma^n v_{t+n-1}(S_{t+n})$$
 	The update rule is hence:
-	$$v_{t+n}(S_t) = v_{t+n-1}(S_t) + \alpha \left[G_{t:t+n}- v_{t+n-1}(s_t)\right]$$
+	$$v_{t+n}(S_t) = v_{t+n-1}(S_t) + \alpha \left[G_{t:t+n}- v_{t+n-1}(S_t)\right]$$
 	\item Which $n$ works best, depends on the environment (see Section~\ref{sec:value_based_tabular_difference_TD_MC} for more detailed discussion)
 	\item To enable off-policy learning, we would require importance sampling as in MC which can introduce additional variance. However, there is an alternative in $n$-step, namely the $n$-step \textbf{Tree Backup} algorithm
 	\item In $n$-step tree backup, we take the next $n$ steps into account, but at each action decision, we also look at all other actions. As visualized in Figure~\ref{fig:rl_tabular_methods_n_step_tree_backup}, we now have multiple leaf nodes. At each of the leafs, we use our estimates.
@@ -171,7 +171,7 @@
 \begin{itemize}
 	\item TD can be implemented in an online, fully incremental fashion. In contrast, MC has to wait for the whole episode to finish which can delay learning in applications with very long episodes.
 	\item TD learning is stronger influenced by the initial values we give the $v$/$q$-values (and hence by \underline{biased}), which can slow down training. Especially in cases where we try to learn a policy (like Q-learning for TD), we can focus our exploration in the wrong direction for a long time before finding another, optimal case.
-	\item In general, MC suffer from \underline{high variance}. This is because $G_t$ is approximated by a single sample, which is often not enough for a sufficient estimate. For example, assume we have a uniform policy over two actions, and an episode is always exactly 4 steps long. Then, the expectation would give each of the $2^10=1024$ possibilities a weight factor of $\frac{1}{1024}$ but in MC, we simply pick one of them which clearly is inaccurate.
+	\item In general, MC suffer from \underline{high variance}. This is because $G_t$ is approximated by a single sample, which is often not enough for a sufficient estimate. For example, assume we have a uniform policy over two actions, and an episode is always exactly 10 steps long. Then, the expectation would give each of the $2^{10}=1024$ possibilities a weight factor of $\frac{1}{1024}$ but in MC, we simply pick one of them which clearly is inaccurate.
 	\item As usual, there is a trade-off version of both, which is $n$-step TD learning. Which $n$ to choose is highly depending on your environment. For the extreme case of only having a single action to take, MC is clearly preferred because there is no variance in the updates. However, in the case where we can have many different outcomes from the same state, TD learning might be the better option. A common rule of thumb is that we need a lower learning rate for larger $n$ due to the increase of variance
 	\item Another interesting difference is that (batch) MC finds the estimates that minimizes the \underline{mean-squared error} on the training set, whereas (batch) TD(0) finds the optimal estimates for a \underline{maximum-likelihood model} of the Markov process. This means that it estimates the transition probability from state $i$ to $j$ as the fraction of observed transitions from $i$ to $j$, and its expected reward is the average of the rewards observed for this transition. Thus, TD learning exploits the Markov property of the environment while MC neglects it. Note that this property can make a big difference if we observe not sufficient data points for each state.
 \end{itemize}

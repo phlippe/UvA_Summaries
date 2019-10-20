@@ -11,7 +11,8 @@
 		\item We are able to learn how much stochasticity is optimal for the given environment. 
 	\end{itemize}
 	\item In case we have discrete actions, we can simply learn by a softmax over these (viewing them as different classes). For continuous, we can for example use a Gaussian, and learn to predict its mean and variance
-	\item The objective of a policy is always the same, namely optimize the expected return for its start state: $J(\theta)=v_{\pi_{\theta}}(s_0)=\E\left[\sum_{t=0}^{T-1} r_{t+1}\right]$
+	\item The objective of a policy is always the same, namely optimize the expected return for its start state(s): $$J(\theta)=v_{\pi_{\theta}}(s_0)=\E\left[\sum_{t=0}^{T-1} r_{t+1}\right]$$
+	Note that we assume here $\gamma=1$. We will use it throughout this section as it makes the derivations/discussion a bit easier, but we can change this term if necessary.
 	\item The simplest update is using \textbf{finite difference}, meaning that we estimate the gradients by a small parameter change:
 	$$\nabla J(\theta)\approx \frac{ J(\theta+\epsilon) - J(\theta-\epsilon)}{2\epsilon}$$
 	However, this means that for $n$ parameters, we would need at least $2n$ roll-outs for an estimate. For stochastic policies, this estimate is extremely noisy and hence, not really applicable.
@@ -19,7 +20,7 @@
 \subsection{REINFORCE and the Policy Gradient Theorem}
 \begin{itemize}
 	\item The Policy Gradient Theorem says that the gradients of $\nabla_{\theta}J(\theta)$ are proportional to:
-	$$\nabla_{\theta}J(\theta) \propto \sum_s \mu(s) \sum_a \nabla \pi(a|s)q_{\pi}(s,a) $$
+	$$\nabla_{\theta}J(\theta) \propto \sum_s \mu(s) \sum_a \nabla_{\theta} \pi_{\theta}(a|s)q_{\pi_{\theta}}(s,a) $$
 	Note that we are not interested in the constant proportionality factor because we will absorb it anyways in the learning rate
 	\item For deriving the REINFORCE algorithm, we follow the approach of the lecture slides. Let's define $\tau$ as a trajectory that starts from $s_0$ and ends in a arbitrary terminal state. Then, the expected return is the expected return over these trajectories. Using this equality, we can derive the gradients as:
 	\begin{equation*}
@@ -28,7 +29,7 @@
 			& = \int \nabla_{\theta} p_{\theta}(\tau) G(\tau)d\tau\\
 		\end{split}
 	\end{equation*}
-	where the probability of a trajectory is defined as $p_{\theta}(\tau)=p(s_0)\prod_{t=1}^{T}\pi_{\theta}(A_t|S_t)p(S_{t+1}|A_{t},S_t)$, and the return is $G(\tau)$ is the expected return from the initial state. Using the trick $\nabla_{\theta} p_{\theta}(\tau)=p_{\theta}(\tau)\cdot \nabla_{\theta} \ln p_{\theta}(\tau)$, we get:
+	where the probability of a trajectory is defined as $p_{\theta}(\tau)=p(s_0)\prod_{t=1}^{T}\pi_{\theta}(A_t|S_t)p(S_{t+1}|A_{t},S_t)$, and $G(\tau)$ is the expected return from the initial state. Using the trick $\nabla_{\theta} p_{\theta}(\tau)=p_{\theta}(\tau)\cdot \nabla_{\theta} \ln p_{\theta}(\tau)$, we get:
 	
 	\begin{equation*}
 		\begin{split}
@@ -40,7 +41,7 @@
 	\item Hence, to estimate the gradient, we can sample trajectories and approximate the expectation above. This estimate is unbiased but has some disadvantages. The efficiency of REINFORCE is low because of its high variance which comes from two points:
 	\begin{itemize}
 		\item First, REINFORCE can be seen as a Monte Carlo method of policy-based RL. Hence, the MC samples bring a certain level of noise with them
-		\item Suppose we are playing CartPole. Our reward is 1 for each time step, until we terminate. This leads to always positive gradients, which can be seen as "supporting" the last actions. Only if we sample the other action, we might experience a even higher return which pushes the policy towards the newly explored actions. 
+		\item Suppose we are playing CartPole. Our reward is 1 for each time step, until we terminate. This leads to always positive gradients, which can be seen as "supporting" the last actions. Only if we sample the other action, we might experience an even higher return which pushes the policy towards the newly explored actions. 
 	\end{itemize}
 	\item The second issue can be tackled by the usage of a \textit{baseline} which is a constant subtracted from the return, that does not influence the gradients being unbiased:
 	\begin{equation*}
@@ -68,7 +69,7 @@
 			& = \E_{\tau}\left[\sum_{t=1}^{T}  r_t \sum_{t'=1}^{t}\nabla_{\theta} \ln p_{\theta}(a_{t'}|s_{t'}) \right]
 		\end{split}
 	\end{equation*}
-	With this rewritten gradient, $r_t$ only influences the actions that come \textit{after} $t$
+	With this rewritten gradient, we give credit for $r_t$ only those actions that came \textit{before} $t$
 	\item This reduces the variance from REINFORCE, and can be combined with baselines etc. However, keep in mind that we still have a Monte Carlo sample, so that there remains a significant variance
 \end{itemize}
 \subsubsection{PGPE}
@@ -89,22 +90,22 @@
 	\item The question arises whether we can replace $q_{\pi}(s_{t'},a_{t'})$ by an estimate $\hat{q}_{\bm{w}}(s_{t'},a_{t'})$ without introducing a bias. The answer is yes, but with two constraints on the function $\hat{q}_{\bm{w}}$:
 	\begin{enumerate}
 		\item The function has to be \textit{compatible}, which means:
-		$$\nabla_{\bm{w}}\hat{q}_{\bm{w}} = \nabla_{\theta}\ln \pi_{\theta}(s,a)\hspace{5mm}\text{like}\hspace{2mm} \hat{q}_{\bm{w}}=\bm{w}^T \nabla_{\theta} \ln \pi_{\theta}(s,a)$$
+		$$\nabla_{\bm{w}}\hat{q}_{\bm{w}}(s,a) = \nabla_{\theta}\ln \pi_{\theta}(a|s)\hspace{5mm}\text{like}\hspace{2mm} \hat{q}_{\bm{w}}(s,a)=\bm{w}^T \nabla_{\theta} \ln \pi_{\theta}(a|s)$$
 		\item $\hat{q}_{\bm{w}}$ has to be fully converged, i.e.
 		$$\E\left[(q_{\pi}(s,a)-q_{\bm{w}}(s,a)) \frac{\partial \hat{q}_{\bm{w}}(s,a)}{\partial \bm{w}}\right]= 0$$
 	\end{enumerate}
 	\item We call the policy $\pi$ the actor, while $\hat{q}_{\bm{w}}$ is the critic
-	\item Note that we can still add a baseline to stabilize learning further. For example, a good baseline is the value function so that our actual of $\hat{q}_{\bm{w}}$ should be to learn $\hat{q}_{\bm{w}}(s,a)\approx q_{\pi}(s,a)-v_{\pi}(s)=A(s,a)$ which is also called the \textbf{advantage}
+	\item Note that we can still add a baseline to stabilize learning further. For example, a good baseline is the value function so that our actual goal of $\hat{q}_{\bm{w}}$ should be to learn $\hat{q}_{\bm{w}}(s,a)\approx q_{\pi}(s,a)-v_{\pi}(s)=A(s,a)$ which is also called the \textbf{advantage}
 	\item The \underline{benefits} of actor-critic methods is a lower variance as the target is not sampled anymore, and we can update our policy more frequently instead of waiting until the end of the episode.
 	
-	However, the \underline{drawbacks} are that we have more hyperparameters to finetune (two learning rates etc.), and we require an stochastic policy. We will see later methods which can deal with deterministic ones.
+	However, the \underline{drawbacks} are that we have more hyperparameters to finetune (two learning rates etc.), and we require an stochastic policy (no full greedy policy possible). We will see later methods which can deal with deterministic ones.
 \end{itemize}
 \subsubsection{Generalized Advantage Estimation (n-step AC)}
 \begin{itemize}
 	\item Let's reconsider the difference between actor-critic and actor-only approaches from a different perspective. Actor-critic bootstrap its estimate on the next value, which is very similar to TD(0) learning. Actor-only uses the sampled return, which is a Monte Carlo method. In value-based methods, we discussed that we can generalize TD(0) and Monte Carlo to $n$-step TD learning which we can do here similarly. This is again a trade-off between variance and bias. %  because as we have seen before, if $\hat{q}_{\bm{w}}$ has not fully converged (which is in practice mostly not the case), we get a biased estimate of our gradients.
 	\item The advantage for an $n$-step estimate is:
-	$$\hat{A}_t^n = r_t + \gamma r_{t+1} + ... + \gamma^n v(s_{t+n}) - v(s_t) = \sum_{l=0}^{n-1} \gamma^{l}\delta_{t+l}$$
-	where $\delta_{t}$ is the TD error for time step $t$.
+	$$\hat{A}_t^n = r_t + \gamma r_{t+1} + ... + \gamma^n v(s_{t+n}) - v(s_t)$$
+	where $\delta_{t}$ is the TD error for time step $t$. If $\gamma=1$, we can rewrite it in terms of TD errors: $\hat{A}_t^n = \sum_{l=0}^{n-1}\delta_{t+l}$
 	 
 	However, we can also take a smoother version of $n$-step, where we take a weighted average of all the advantages:
 	$$\hat{A}_t^{GAE} = (1-\lambda)\left(\hat{A}_t^{(1)} + \lambda \hat{A}_t^{(2)} + \lambda^2 \hat{A}_t^{(2)} + ...\right) = \sum_{l=0}^{\infty} (\gamma \lambda)^{l}\delta_{t+l}$$
@@ -116,7 +117,8 @@
 \end{itemize}
 \subsection{Higher-order Policy Search Methods}
 \begin{itemize}
-	\item When updating our policy, we want to make sure that we don't change too much. A simple way of checking that is by taking the L2 norm over parameters, namely $d\theta^T d\theta$, and fix this norm to a certain value $c$
+	\item When updating our policy, we want to make sure that we don't change too much. The reason for that is that our samples come from $\pi_{\theta}$. The more we change $\pi_{\theta}$, the more our gradient estimate becomes inaccurate! Hence, we should limit our change in $\pi_{\theta}$.
+	\item A simple way of checking that is by taking the L2 norm over parameters, namely $d\theta^T d\theta$, and fix this norm to a certain value $c$
 	\item To find the next optimal value, we have to solve the following equation for the step we take, namely $\theta^{*}-\theta_0$ ($\theta^{*}$ next value), such that $d\theta^T d\theta=c$:
 	\begin{equation*}
 		\begin{split}
@@ -150,9 +152,16 @@
 	\begin{equation*}
 		\begin{split}
 			F & = \nabla_{d\theta}^2\text{EKL} = \E_{s}\left[\nabla_{d\theta}^2 D_{KL}\left(\pi(a|s;\theta_0)||\pi(a|s;\theta)\right)\right]\\
-			\nabla_{d\theta}^2 D_{KL} & = \E_{a\sim\pi(a|s;\theta_0)}[\nabla_{d\theta}^2 \log \pi(a|s;\theta_0+d\theta)]
+			\nabla_{d\theta}^2 D_{KL} & = \E_{a\sim\pi(a|s;\theta_0)}[\nabla_{d\theta}^2 \log \pi(a|s;\theta_0+d\theta)]\\[10pt]
 		\end{split}
 	\end{equation*}
+	$$\implies F = \begin{bmatrix}
+	\E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]^2 & \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right] & ...\\
+	\E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right] & \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]^2 & ...\\
+	% \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_3} \log \pi_{\theta}(a|s)\right] & \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_3} \log \pi_{\theta}(a|s)\right] & ...\\
+	\vdots & \vdots & \ddots
+	\end{bmatrix}$$
+	
 	\item Now, we reconsider our update step:
 	\begin{equation*}
 		\begin{split}
