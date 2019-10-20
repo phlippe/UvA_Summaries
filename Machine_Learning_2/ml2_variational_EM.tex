@@ -50,11 +50,11 @@
 	\item During the E-step, we optimize $\mathcal{L}(\bm{\theta}, q)=\ln p(\bm{X}|\bm{\theta})-\text{KL}(q||p)$ regarding $q$. As $\ln p(\bm{X}|\bm{\theta})$ is independent of $q$, we minimize the KL-divergence, meaning that we push $q_n(\bm{z}_n)$ to be similar to $p(\bm{z}_n\vert \bm{x}_n, \bm{\theta})$
 	\item In the M-step, we increase $p(\bm{X}|\bm{\theta})$ by optimizing the parameters $\bm{\theta}$. Note that as $q$ is fixed in this step, the KL-divergence will increase as well, due to $q$ being now sub-optimal for the new parameters. Hence, we perform another E-step again a.s.o.
 	\item Keep in mind that when optimizing $\mathcal{L}(\bm{\theta}, q)$, we need to add Lagrangian for the constraint that $q_n$ is a valid PDF:
-	$$\tilde{\mathcal{L}}\bm{\theta}, q) = \mathcal{L}(\bm{\theta}, q) + \sum_{n=1}^{N} \lambda_n \left(\sum_{\bm{z}_n} q_n(\bm{z}_n) - 1\right)$$
-	Depending on our model, we might need to add additional Lagrangian to $\tilde{\mathcal{L}}\bm{\theta}, q)$ (e.g. over $\bm{\pi}$ in mixture models)
+	$$\tilde{\mathcal{L}}(\bm{\theta}, q) = \mathcal{L}(\bm{\theta}, q) + \sum_{n=1}^{N} \lambda_n \left(\sum_{\bm{z}_n} q_n(\bm{z}_n) - 1\right)$$
+	Depending on our model, we might need to add additional Lagrangian to $\tilde{\mathcal{L}}(\bm{\theta}, q)$ (e.g. over $\bm{\pi}$ in mixture models)
 	\item In summary, the variational EM algorithm can be summarized as follows:
 	
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Variational EM algorithm]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Variational EM algorithm]
 		\begin{enumerate}
 			\item Choose initial $\bm{\theta}^{(0)}$
 			\item Iterate until $\Delta \bm{\theta}^{(t)} < \epsilon$
@@ -197,7 +197,7 @@
 	\item When solving this, we will end up with:
 	\begin{equation*}
 		\begin{split}
-			q_{\mu}(\mu) & = \mathcal{N}\left(\mu\Big\vert \frac{\lambda_0\mu_0 + N\overline{x}}{\lambda_0 + N}, (\lambda_0 + N)\E_{q_{\tau}}[\tau]\right)\\
+			q_{\mu}(\mu) & = \mathcal{N}\left(\mu\Big\vert \frac{\lambda_0\mu_0 + N\overline{x}}{\lambda_0 + N}, \left[(\lambda_0 + N)\E_{q_{\tau}}[\tau]\right]^{-1}\right)\\
 			q_{\tau}(\tau) & = \text{Gamma}\left(\tau\Big\vert a_0 + \frac{N}{2}, b_0 + \frac{1}{2}\E_{q_{\mu}}\left[\sum_n (x_n-\mu)^2+\lambda_0(\mu-\mu_0)^2\right]\right)\\
 			\Rightarrow p(\mu, \tau|\bm{X}) &\approx q_{\mu}(\mu)q_{\tau}(\tau)
 		\end{split}
@@ -228,7 +228,7 @@
 	\begin{equation*}
 		\begin{split}
 			\mathcal{L}(\bm{\theta}) & = \ln p(\bm{X}|\bm{\theta}) = \ln \int p(\bm{X}|\bm{Z},\bm{\theta})p(\bm{Z}|\bm{\theta})d\bm{Z}\\
-			\mathcal{L}(\bm{\theta}, \bm{\lambda}) = \E_{q(Z|X,\lambda)}\left[\ln p(\bm{X}|\bm{Z},\bm{\theta}_2) + \ln p(\bm{Z}|\bm{\theta}_1)\right] + H(q(\bm{Z}|\bm{X}, \bm{\lambda}))
+			\mathcal{L}(\bm{\theta}, \bm{\lambda}) & = \E_{q(Z|X,\lambda)}\left[\ln p(\bm{X}|\bm{Z},\bm{\theta}_2) + \ln p(\bm{Z}|\bm{\theta}_1)\right] + H(q(\bm{Z}|\bm{X}, \bm{\lambda}))
 		\end{split}
 	\end{equation*}
 	\item To prevent the integral, we can sample instead. To make these samples differentiable, we need to use the reparameterization trick:

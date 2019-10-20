@@ -30,7 +30,7 @@
 	\item Assume we have a probability density $p(z)$ from which we want to sample. Choose another distribution $q(z)$, called \textit{proposal} distribution, from which we can sample. Further constraints are that the unnormalized distributions $\tilde{p}(z)\propto p(z), \tilde{q}(z)\propto q(z)$ fulfill:
 	$$\int \tilde{q}(z)dz < \infty, \tilde{p}(z)\leq \tilde{q}(z) \forall z$$
 	\item Now, we can generate samples from $p(z)$ by a simple algorithm:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode for rejection sampling]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Pseudocode for rejection sampling]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			\For{$n=1,...,N$}{
@@ -59,7 +59,7 @@
 \begin{itemize}
 	\item Another approach for estimating an expectation is not generating actual samples from $p$, but simply weight samples by their \textit{importance}
 	\item Again, we need two distributions: $p$ over which we want to determine the expectation, and $q$ that we actually sample from. Note that for this algorithm to work, none of these distributions need to be normalized. The only thing that is required is that we can sample from the normalized density of $q$.
-	\item The pseudo-code for the importance sampling is fairly simple and straight forward: \begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode for importance sampling]
+	\item The pseudo-code for the importance sampling is fairly simple and straight forward: \begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Pseudocode for importance sampling]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			Sample $\left\{z_n\right\}_{n=1}^{N}$ from $q(z)$\;
@@ -73,16 +73,16 @@
 	\item Although importance sampling can use all samples, it has two major drawbacks:
 	\begin{itemize}
 		\item The estimate of $\E[f]$ is \underline{not} unbiased. Imagine we would sample only a single time ($N=1$ in pseudo code). As the sum drops out, we end up with $f(z_i)$ where $z_i$ is sampled from $q$, and not $p$! This bias decreases with the number of samples, but should always be kept in mind as an accurate estimate might require more samples, especially when it occurs with the second drawback.
-		\item The importance weighting estimate has a high variance when if $p$ differs strongly from $q$, especially when $p(z_i)\gg q(z_i)$ as the weight is very high for this data point. Imagine $q$ is a Gaussian with a large variance, while $p$ is a peaked Gaussian around 0. For most of the samples, $p(z)\ll q(z)$, and hence their weight is low. But for a small of points, namely close to 0, $p(z)$ is much greater than $q(z)$ resulting in a high weight. If we now sample e.g. 100 times, all points except those around 0 are neglected due to their low weight. And as those important points are rarely sampled from $q$, we need many samples to reduce the variance. This problem occurs even stronger in high-dimensional spaces.
+		\item The importance weighting estimate has a high variance if $p$ differs strongly from $q$, especially when $p(z_i)\gg q(z_i)$ as the weight is very high for this data point. Imagine $q$ is a Gaussian with a large variance, while $p$ is a peaked Gaussian around 0. For most of the samples, $p(z)\ll q(z)$, and hence their weight is low. But for a small set of points, namely those close to 0, $p(z)$ is much greater than $q(z)$ resulting in a high weight. If we now sample e.g. 100 times, all points except those around 0 are neglected due to their low weight. And as those important points are rarely sampled from $q$, we need many samples to reduce the variance. This problem occurs even stronger in high-dimensional spaces.
 	\end{itemize}
-	\item Furthermore, not that importance sampling can only be used for approximating an expectation, and not for generating independent samples from $p$
+	\item Furthermore, note that importance sampling can only be used for approximating an expectation, and not for generating independent samples from $p$
 \end{itemize}
 \subsection{Ancestral Sampling}
 \begin{itemize}
 	\item Assume we have given a Bayesian network, and want to sample from the joint probability. We can write the joint probability as:
 	$$p(\bm{z})=\prod_{i=1}^{d} p(z_i\vert z_{\text{pa}(i)})$$
 	where we use a topological ordering $z_1,...,z_d$ with $z_j<z_i$ if $j\in \text{pa}(i)$
-	\item Now we can simply sample by sampling from each of the conditionals, in the topological ordering. For example, assume we have the following Bayesian network:
+	\item Now we can simply sample from the joint distribution by sampling from each of the conditionals, in the topological ordering. For example, assume we have the following Bayesian network:
 	
 	\begin{figure}[ht!]
 		\centering
@@ -145,7 +145,7 @@
 		}
 	\end{figure}
 	\item Note that as MCMC runs ancestral sampling on a chain, two consecutive samples are no longer independent. Still, we can assume that the dependency between two fairly distant samples is neglectable
-	\item We start sampling $x_1$ from an initial distribution $q(x_1)$ which can be chosen arbitrarily (but the closer $q$ to $p$, the faster the convergence and hence, faster sampling). For the next samples, we use a \underline{transition kernel} $T$ to get $x_2\sim T(x_2|x_1)$
+	\item We start sampling $x_1$ from an initial distribution $q(x_1)$ which can be chosen arbitrarily (but the closer $q$ to $p$, the faster the convergence and hence, faster sampling). For the next samples, we use a \underline{transition kernel} $T$ (which we have to specify/find by ourselves) to get $x_2\sim T(x_2|x_1)$
 	\item The transition kernel is usually independent of time (most efficient), but can be extended to multiple steps (e.g. $x_t$ is sampled by $T_1$, $x_{t+1}$ from $T_2$, and $x_{t+2}$ again from $T_1$)
 	\item The marginal distribution can be determined by:
 	$$q(x_{n}) = \int q(x_{n-1})T(x_{n}|x_{n-1})dx_{n-1}$$
@@ -184,7 +184,7 @@
 \subsubsection{Metropolis-Hastings algorithm}
 \begin{itemize}
 	\item Choose a proposal transition kernel $Q(x_{t+1}|x_{t})$ (e.g. a random walk). Then we can sample from $p^{\star}(x)$ as follows:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode for Metropolis-Hastings algorithm]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Pseudocode for Metropolis-Hastings algorithm]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			Sample initial state $x_0$ from $q(x_0)$\;
@@ -217,7 +217,7 @@
 \begin{itemize}
 	\item Gibbs sampling is a special case of the Metropolis-Hastings algorithm, where the acceptance probability is always 1. The idea is that we cannot easily sample from a big joint distribution, but sampling a single variable given all others is feasible/much simpler. 
 	\item Hence, we sample a D-dimensional vector $(x_1,x_2,...,x_D)$ by sampling from the conditional distributions of a single variable $x_i$ where we keep all other variables fixed. In pseudo-code, we can define Gibbs sampling as:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode for Gibbs sampling]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Pseudocode for Gibbs sampling]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			Choose an initial state $\left\{x_i:i=1,...,M\right\}$\;

@@ -2,7 +2,7 @@
 \begin{itemize}
 	\item Causality is about testing whether one event (\textit{effect}) is the result of the occurrence of another event (\textit{cause}), i.e. a change in the cause will lead to a change in the effect. It differs from correlation by \textit{explaining}/\textit{finding} the relationship behind variables
 	\item While we look at the data distribution for correlation, we are focusing on the generation mechanism of the data in causality. While in statistics we then like to predict the next observation (or its likelihood), causality is interested in what happens if we perform interventions (setting a variable to a certain value)
-	\item The most important operator in causality is the \textbf{do-operator}: $p(A=a|\Cdo(B=b))$. It differs from the standard conditional probability as follows by not assuming that we have observed $B=b$, but that we externally set the value of $B$. This means that we cannot infer anything from its parents as in standard conditionals (if we observe $B=b$, then this usually gives us information about its parents).
+	\item The most important operator in causality is the \textbf{do-operator}: $p(A=a|\Cdo(B=b))$. It differs from the standard conditional probability by not assuming that we have observed $B=b$, but that we externally set the value of $B$. This means that we cannot infer anything from its parents as in standard conditionals (if we observe $B=b$, then this usually gives us information about its parents).
 	
 	Note that there are cases where $p(A=a|\Cdo(B=b))=p(A=a|B=b)$. One obvious example for this is when $B$ has no parents in its corresponding graphical model.
 	\item We start with a discussion about the terminology in causality, and then take a closer look at Causal Bayesian networks and causal reasoning
@@ -31,7 +31,7 @@
 	\item We use the notation $\mathcal{G}_{\overline{X}}$ to denote a sub-graph of $\mathcal{G}$ in which the incomming edges of $X$ are removed. This is useful for discussing when $X$ is set externally (hence, no influence of parents of $X$ in that case).
 	
 	Similarly, $\mathcal{G}_{\underline{X}}$ is $\mathcal{G}$ without the outgoing edges of $X$.
-	\item  A \textbf{perfect intervention} $\Cdo(X=\xi)$ means that we force $X$ to eb the value $\xi$. Thereby, the graph $\mathcal{G}$ changes to $\mathcal{G}_{\overline{X}}$
+	\item  A \textbf{perfect intervention} $\Cdo(X=\xi)$ means that we force $X$ to be the value $\xi$. Thereby, the graph $\mathcal{G}$ changes to $\mathcal{G}_{\overline{X}}$
 	\begin{itemize}
 		\item To perform intervention, we require \textit{modularity}, meaning that we can manipulate $X$ without influencing any other variables in the graph $\bm{V}\setminus X$
 		\item This can be a challenge in real systems, but in our theoretical models, we can assume that we are able to do so
@@ -47,7 +47,7 @@
 
 	\item \textbf{Reichenbach's principle} sets correlation and causality into relation: if $X$ and $Y$ are correlated/depending on each other, then there is either a causal relation of the type $X\to Y$, $Y\to X$ or there exists a confounder $H$ of $X$ and $Y$.
 	\begin{itemize}
-		\item Note that this principle can fail is we have a selection bias, meaning that the dataset of $X$ and $Y$ was obtained by only including samples that are conditional on some (possibly latent) event.
+		\item Note that this principle can fail if we have a selection bias, meaning that the dataset of $X$ and $Y$ was obtained by only including samples that are conditional on some (possibly latent) event.
 	\end{itemize}
 \end{itemize}
 
@@ -123,6 +123,8 @@
 	\end{tcolorbox}	
 
 	To find the actual set $S$, we can simply perform the algorithm backwards. First, find all paths from $Y$ to $X$ with an incoming edge to $X$. Then, we start with $S=\emptyset$, and try to block all paths by adding variables to $S$. In case that all paths were blocked from the beginning on, or no paths exist, we can stop with $S=\emptyset$.
+	
+	Note that simplest solution of $S$ is the set of all the nodes with an edge to $X$. It might not be the smallest set, but should be always a valid one as we do not allow loops in BNs.
 	
 	\item \underline{Examples}: 
 	\begin{itemize}

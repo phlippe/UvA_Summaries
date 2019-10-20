@@ -23,7 +23,7 @@
 	\begin{equation*}
 		\begin{split}
 			\text{Normalization constant}\hspace{2mm} z(\bm{\eta}) & = \frac{1}{g(\bm{\eta})} = \int h(\bm{x})\exp\left(\bm{\eta}^T \cdot \bm{u}(\bm{x})\right) d\bm{x}\\
-			\frac{\partial}{\partial \bm{\eta}} -\ln g(\bm{\eta}) & = -\frac{1}{z(\bm{\eta})} \int h(\bm{x})\bm{u}(\bm{x})\exp\left(\bm{\eta}^T \cdot \bm{u}(\bm{x})\right) d\bm{x} = \E[\bm{u}(\bm{x})\vert \bm{\eta}]\\
+			\frac{\partial}{\partial \bm{\eta}} -\ln g(\bm{\eta}) & = \frac{1}{z(\bm{\eta})} \int h(\bm{x})\bm{u}(\bm{x})\exp\left(\bm{\eta}^T \cdot \bm{u}(\bm{x})\right) d\bm{x} = \E[\bm{u}(\bm{x})\vert \bm{\eta}]\\
 		\end{split}
 	\end{equation*}
 	\begin{itemize}
@@ -149,7 +149,7 @@
 		\item Expectation $\E[m]=\sum_{i=1}^{N}\E[x_i]=N\cdot \mu$
 		\item Variance $\mathbb{V}\text{ar}[x]=N\cdot \mu(1-\mu)$
 		\item Maximum likelihood estimate $\mu_{\text{ML}}=\frac{m}{N}$
-		\item Exponential family $p(m|\eta)=\frac{N!}{(N-m)!m!}\cdot \exp(N\log \log 1-\mu) \cdot \exp(m\log\frac{\mu}{1-\mu})$, $\eta=\log \frac{\mu}{1-\mu}$
+		\item Exponential family $p(m|\eta)=\frac{N!}{(N-m)!m!}\cdot \exp(N \log 1-\mu) \cdot \exp(m\log\frac{\mu}{1-\mu})$, $\eta=\log \frac{\mu}{1-\mu}$
 		\item Conjugate prior: Beta distribution. The posterior is: $\text{Beta}(\mu|a+m,b+N-m)$
 	\end{itemize}
 
@@ -214,7 +214,7 @@
 	$$\bm{W}^{t+1}=\bm{W}^{t} + \alpha \cdot \frac{1}{N}\sum_{n=1}^{N}\left(\nabla_{\bm{S}} \log p(\bm{S})\Big\vert_{S=S_n}\bm{S}_n^T+\bm{I}\right)\bm{W}$$
 	where we estimate $\bm{S}=\bm{W}\bm{X}$. In addition, we see here that what we actually need from our prior is the derivative of its log. Hence, the prior is mostly designed to have a simple form of $\Phi_i=\frac{\partial \ln p_i(a_i)}{\partial a_i}$.
 	\item We can slightly simplify the gradient calculation by splitting it into multiple parts. Summarizing the full algorithm, we get:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Independent Component Analysis]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Independent Component Analysis]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			Choose prior and calculate log derivative $\Phi_i=\frac{\partial \ln p_i(a_i)}{\partial a_i}$\;

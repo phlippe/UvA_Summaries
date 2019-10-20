@@ -8,7 +8,7 @@
 		\item Designing and communicating statistical model
 		\item Encoding (conditional) independence relations
 	\end{itemize} 
-	\item Note that there are often multiple ways to express the same probability distribution. For example, take a joint distribution $p(A,B,C)$, which we can either write as $p(A,B,C)=p(A)p(B|A)p(C|A,B)$ (see Figure~\ref{fig:graphical_models_example_1}) or $p(A,B,C)=p(C)p(A|C)p(B|A,C)$ (see Figure~\ref{fig:graphical_models_example_2}). Nevertheless, what we interested in the end is the graphical representation with the least number of edges, as e.g. if $A$ and $B$ are independent (conditionally on $C$), we can drop the edge between those.
+	\item Note that there are often multiple ways to express the same probability distribution. For example, take a joint distribution $p(A,B,C)$, which we can either write as $p(A,B,C)=p(A)p(B|A)p(C|A,B)$ (see Figure~\ref{fig:graphical_models_example_1}) or $p(A,B,C)=p(C)p(A|C)p(B|A,C)$ (see Figure~\ref{fig:graphical_models_example_2}). Nevertheless, what we are interested in is the graphical representation with the least number of edges, as e.g. if $A$ and $B$ are independent (conditionally on $C$), we can drop the edge between those.
 	\begin{figure}[ht!]
 		\centering
 		\begin{subfigure}{0.4\textwidth}
@@ -74,12 +74,13 @@
 				\edge{xetc1}{xM};
 			}
 		\end{figure}
+	
 		where the filling expresses that $X_i$ is an observed variable.
 	\end{itemize}
 	\item \underline{Example}: Regression
 	\begin{itemize}
-		\item Suppose we a simple regression problem where we want to learn parameters $W$ to predict targets $T$ from input $X$. We further assume that we know our sensory noise $\sigma^2$, and have a prior with hyperparameters $\alpha$.
-		\item We can express this in the following graphical model:
+		\item Suppose we have a simple regression problem where we want to learn parameters $W$ to predict targets $T$ from input $X$. We further assume that we know our sensory noise $\sigma^2$, and have a prior with hyperparameters $\alpha$.
+		\item 
 		\begin{figure}[ht!]
 			\centering
 			\tikz{ %
@@ -97,9 +98,10 @@
 				\edge{sigma}{t};
 			}
 		\end{figure}
-		which represents the probability distribution
+	
+		We can express this in the graphical model above, which represents the probability distribution
 		$$p(W, \left\{T_n\right\}, \left\{X_n\right\}|\alpha, \sigma^2)p(W|\alpha)\prod_{n=1}^{N} \left[p(T_n|X_n, W, \sigma^2)p(X_n)\right]$$
-		Note that in the graphical model, $\alpha$ and $\sigma^2$ are assumed to be fixed an known, and the ``plate'' can be interpreted as copying the content $N$ times (i.e. we have $N$ $X_i$ and $T_i$ variables with the same edges).
+		Note that in the graphical model, $\alpha$ and $\sigma^2$ are assumed to be fixed and known, and the ``plate'' can be interpreted as copying the content $N$ times (i.e. we have $N$ $X_i$ and $T_i$ variables with the same edges).
 		
 		Also, if desired, we could have used a constant for the data points $X_i$ as well as these are often assumed to be fixed.
 		\item If we also want to express the predictive distribution $p(T^{*}|X^{*},W, \left\{T_n\right\}, \left\{X_n\right\},\alpha, \sigma^2)$, we can extend our model as follows:
@@ -138,7 +140,7 @@
 	\item Note that the other way round, $X_A\independent X_B|X_C\not\Rightarrow A\perp B|C $ is not always valid (but mostly) as we will show in a later example. Hence, if $A$ and $B$ are not d-separated, it does not necessarily mean that $X_A$ and $X_B$ are not conditional independent.
 	
 	\item The algorithm can be summarized as follows:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=D-separation]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=D-separation]
 		Given the sets of variables $A$, $B$, $C$:
 		\begin{enumerate}
 			\item Consider all paths (sequence of nodes, connected by edges,  s.t. no node repeats) between any node in $A$ and any node in $B$

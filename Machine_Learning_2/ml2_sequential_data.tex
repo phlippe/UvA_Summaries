@@ -16,10 +16,12 @@
 			\node[obs, right=of x1] (x2) {$x_2$} ; %
 			\node[obs, right=of x2] (x3) {$x_3$} ; %
 			\node[const, right=of x3] (xetc1) { \hspace{2mm}...\hspace{2mm} } ; %
+			\node[obs, right=of xetc1] (xN) {$x_N$} ; %
 			
 			\edge{x1}{x2};
 			\edge{x2}{x3};
 			\edge{x3}{xetc1};
+			\edge{xetc1}{xN};
 		}
 	\end{figure}
 
@@ -40,11 +42,13 @@
 			$M$ & $K^{M}-1$ & $K^{M}(K-1)$\\
 		\end{tabular}
 	\end{table}
+
 	For inhomogeneous MM, we would have $N-M$-times the conditional parameters where $N$ is the length of the chain (needs fixed size if conditionals are not shared!). 
 	
-	As the number of parameters increase exponentially with the order $M$, it is often impractical to use high-order MM. 
-	\item Our next discussions will focus on the first-order MM but can be applied to any order. This can be easily shown by reducing a M'th order MM to 1st oder MM: introduce new variables $y_n=(x_n,x_{n+1},...,x{n+M-1})$, then:
-	$$p(y_n=(x_n,x_{n+1},...,x_{n+M-1})|y_{n-1}=(\tilde{x}_{n-1},\tilde{x}_n,...,\tilde{x}_{n+M-2}))=\begin{cases}
+	As the number of parameters increases exponentially with the order $M$, it is often impractical to use high-order MM. 
+	\item Our next discussions will focus on the first-order MM but can be applied to any order. This can be easily shown by reducing a M'th order MM to 1st order MM. Suppose we
+	introduce new variables $y_n=(x_n,x_{n+1},...,x{n+M-1})$, then we can express our MM by:
+	$$\hspace{-10mm}p(y_n=(x_n,x_{n+1},...,x_{n+M-1})|y_{n-1}=(\tilde{x}_{n-1},\tilde{x}_n,...,\tilde{x}_{n+M-2}))=\begin{cases}
 	0 & \text{if for any } i, x_i\neq \tilde{x}_i\\
 	p(x_{n+M-1}|x_n,...,x_{n+M-2}) & \text{otherwise}
 	\end{cases}$$
@@ -126,13 +130,13 @@
 				\factor[right=of zetc] {fN} {$f_N$} {} {} ;
 				\node[latent, right=of fN] (zN) {$\bm{z}_{N}$} ; %
 						
-				\factoredge{}{h1}{z1} ;	
-				\factoredge{z1}{f2}{z2} ;	
-				\factoredge{z2}{f3}{z3} ;	
-				\factoredge{z3}{f4}{zetc} ;	
-				\factoredge{zetc}{fN}{zN} ;	
+				\factoredge[-]{}{h1}{z1} ;	
+				\factoredge[-]{z1}{f2}{z2} ;	
+				\factoredge[-]{z2}{f3}{z3} ;	
+				\factoredge[-]{z3}{f4}{zetc} ;	
+				\factoredge[-]{zetc}{fN}{zN} ;	
 			}
-			\caption{Drawing of the factor graph. Note that the edges are usually undirected, and here only directed due to the used \texttt{LaTeX}-framework \texttt{tikz-bayesnet}.}
+			\caption{Drawing of the factor graph. }
 			\label{fig:HMM_factor_graph}
 		\end{figure}
 	
@@ -170,13 +174,13 @@
 			\end{split}
 		\end{equation*}
 		Solving the same for the parameter $\bm{\phi}$ depends on the form of emission probability that was chosen. For example, if we have a Gaussian density $p(\bm{x}|\bm{\phi}_k)$, the optimized parameters are:
-		$$\bm{\mu}_k=\frac{\sum_{n=1}^{N}\gamma(z_{nk})\bm{x}_n}{\sum_{n=1}^{N}\gamma(z_{nk})}, \hspace{5mm} \bm{\Sigma}_k = \frac{\sum_{n=1}^{N} \gamma(z_{nk})(\bm{x}_n - \mu_{k})(\bm{x}_n - \mu_{k})^T}{\sum_{n=1}^{N} \gamma(z_{nk})}$$
+		$$\bm{\mu}_k=\frac{\sum_{n=1}^{N}\gamma(z_{nk})\bm{x}_n}{\sum_{n=1}^{N}\gamma(z_{nk})}, \hspace{5mm} \bm{\Sigma}_k = \frac{\sum_{n=1}^{N} \gamma(z_{nk})(\bm{x}_n - \bm{\mu}_{k})(\bm{x}_n - \bm{\mu}_{k})^T}{\sum_{n=1}^{N} \gamma(z_{nk})}$$
 		Similarly, if we would have discrete observations and model it with a multinomial distribution, i.e. $p(\bm{x}|\bm{z},\bm{\mu}) = \prod_{i=1}^{D}\prod_{k=1}^{K} \mu_{ik}^{x_i z_k}$, we would get as solution:
 		$$\mu_{ik} = \frac{\sum_{n=1}^{N}\gamma(z_{nk})x_{ni}}{\sum_{n=1}^{N}\gamma(z_{nk})}$$
 	\end{description}
 	
 	\item To conclude, the EM algorithm for Hidden Markov Models can be summarized as follows:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=EM for HMM]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=EM for HMM]
 		\begin{enumerate}
 			\item Choose initial values $\bm{\theta}^{\text{old}}$ with $\bm{\theta}=(\bm{\pi}, \bm{A}, \bm{\phi})$
 			\item Iterate until $\Delta \bm{\theta}^{(t)} < \epsilon$
@@ -203,7 +207,7 @@
 	\item For this, we can use an adaptation of the max-sum algorithm where we use dynamic programming for the backward path
 	\item We use the same factor graph as in Figure~\ref{fig:HMM_factor_graph}. For simplification, we denote the message from $f_n$ (or $h_1$ for $n=1$) to $\bm{z}_n$ as $\omega(\bm{z}_n)$.
 	\item The whole algorithm can be then summarized as:
-	\begin{tcolorbox}[colback=white!80!gray,colframe=gray!75!black,title=Pseudocode of Viterbi algorithm]
+	\begin{tcolorbox}[colback=white!85!gray,colframe=gray!75!black,title=Pseudocode of Viterbi algorithm]
 		\begin{algorithm}[H]
 			\SetAlgoLined
 			\tcp{\textcolor{blue}{Forward pass}}
@@ -215,11 +219,14 @@
 			\tcp{\textcolor{blue}{Backward pass}}
 			$\bm{z}_N^{\text{max}}=\arg\max_{\bm{z}_N} \omega(\bm{z}_N)$\;
 			\For{$n=N-1,...,1$}{
-				$z_n^{\text{max}} = \psi_{n}(\bm{z}_{n+1}^{\text{max}})$\;
+				$\bm{z}_n^{\text{max}} = \psi_{n}(\bm{z}_{n+1}^{\text{max}})$\;
 			}
 			Return $\bm{z}_1^{\text{max}}, \bm{z}_2^{\text{max}},...,\bm{z}_N^{\text{max}}$\;
 		\end{algorithm}
 	\end{tcolorbox}
+	\item Coming back to the discussion about the max-sum algorithm on trees, we have said that for multiple optima, we need to use the Viterbi algorithm. Assume that for any $n$, we have two solutions for $\bm{z}_n^{\text{max}} = \psi_{n}(\bm{z}_{n+1}^{\text{max}})$ (i.e. we have two values for $z_n$ that maximize our objective). If we are just interested in one, arbitrary solution, we get pick any of them and continue. Otherwise, we select one of the optimums, continue the Viterbi algorithm, and afterwards go back to this step, and select the next optimum. In the end, we can combine all solutions to return a full set of all optima. 
+	
+	We prevent the problem of returning undesirable combinations of independent optima by conditioning them on each other (i.e. $\bm{z}_n^{\text{max}}$ depends on $\bm{z}_{n+1}^{\text{max}}$).
 \end{itemize}
 \subsection{Linear Dynamical Systems}
 \begin{itemize}
