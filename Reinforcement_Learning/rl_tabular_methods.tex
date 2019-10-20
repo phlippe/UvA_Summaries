@@ -21,7 +21,7 @@
 	\begin{equation*}
 		\begin{split}
 			q_{\pi}(s,\pi'(s)) & =\frac{\epsilon}{|\mathcal{A}(s)|}\sum_a q_{\pi}(s,a) + \left(1-\epsilon\right)\max_a q_{\pi}(s,a)\\
-			v_{\pi}(s) & = \frac{\epsilon}{|\mathcal{A}(s)|} \sum_a q_{\pi}(s,a) + (1-\epsilon)\left[\sum_{a}\frac{\pi(a|s)-\epsilon}{1-\epsilon} q_{\pi}(s,a)\right]\\
+			v_{\pi}(s) & = \frac{\epsilon}{|\mathcal{A}(s)|} \sum_a q_{\pi}(s,a) + (1-\epsilon)\left[\sum_{a}\frac{\pi(a|s)-\frac{\epsilon}{|\mathcal{A}(s)|}}{1-\epsilon} q_{\pi}(s,a)\right]\\
 		\end{split}
 	\end{equation*}
 	To show that we improve, we need to show that $v_{\pi'}(s)\geq v_{\pi}(s)$. As the stochastic part $\frac{\epsilon}{|\mathcal{A}(s)|} \sum_a q_{\pi}(s,a)$ is unaffected by $\pi$, we only have to compare the greedy part:
@@ -43,8 +43,8 @@
 \begin{itemize}
 	\item In off-policy, we have a behavior policy $b$ from which we sample the trajectories, and our greedy target policy $\pi$. The only constraint on $b$ is that for any action where $\pi(a|s)>0$, then $b$ also need to be $b(a|s)>0$. We can ensure this by any $\epsilon$-soft policy
 	\item When sampling, we need to correct for the fact that we use samples from $b$ to evaluate an expectation over $\pi$. One way of doing so is importance sampling:
-	$$v_{\pi}(s) \approx \frac{1}{N}\sum_{n=1}^{N} \frac{p(\tau^{i}_t|s,A_t\sim\pi)}{p(\tau^{i}_t|s,A_t\sim b)} G(\tau^{i})$$
-	where we can rewrite the importance weights as $\rho_{t:T-1}=\frac{\prod_{k=t}^{T-1}\pi(A_k|S_k)}{\prod_{k=t}^{T-1}b(A_k|S_k)}$. Note that the transition probabilities between $S_{t}$ and $S_{t+1}$ cancel out as they are the same for $\pi$ and $b$.
+	$$v_{\pi}(s) \approx \frac{1}{N}\sum_{n=1}^{N} \frac{p(\tau^{n}_{t}|s,A_t\sim\pi)}{p(\tau^{n}_{t}|s,A_t\sim b)} G(\tau_{t}^{n})$$
+	where $\tau^{n}_{t}$ is the $n$-th trajectory starting from time step $t$ till the end. We can rewrite the importance weights as $\rho_{t:T-1}=\frac{\prod_{k=t}^{T-1}\pi(A_k|S_k)}{\prod_{k=t}^{T-1}b(A_k|S_k)}$. Note that the transition probabilities between $S_{t}$ and $S_{t+1}$ cancel out as they are the same for $\pi$ and $b$.
 	\item When using these importance weight, there are two ways we can average over them:
 	\begin{itemize}
 		\item \textbf{Ordinary} importance sampling averages by taking the number of trajectories into account:
@@ -68,7 +68,7 @@
 	
 	In case we use a greedy policy for $\pi$, we can simply the algorithm further. In the importance weight, $\pi(A_t|S_t)$ is 1 if $A_t$ was the greedy action, otherwise, we have a factor of 0 (which gives $\rho=0$ for all previous actions). If we update our states in a reverse manner, this means that we can stop the loop as soon as we hit a sub-optimal action. 
 	
-	Note that $W$ can get fairly large for long trajectories, as $b(A|S)$ is always smaller than 0. We need to use weighted importance sampling instead of ordinary as otherwise, the variance is too high. In addition, as only the tails of the episode are updated frequently, we might have an insufficient amount of samples for the states close to the start, which makes the algorithm inefficient.
+	Note that $W$ can get fairly large for long trajectories, as $b(A|S)$ is always smaller than 1. We need to use weighted importance sampling instead of ordinary as otherwise, the variance is too high. In addition, as only the tails of the episode are updated frequently, we might have an insufficient amount of samples for the states close to the start, which makes the algorithm inefficient.
 	
 	
 \end{itemize}
