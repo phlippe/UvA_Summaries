@@ -87,7 +87,7 @@
 	\begin{equation*}
 		\begin{split}
 			v_{*}(s) & =\max_{a}q_{*}(s,a)= \max_a \E\left[R_{t+1}+\gamma v_{*}(S_{t+1})|S_t=s,A_t=a\right]\\
-			q_{*}(s,a) & = \max_{a}\E\left[R_{t+1}+\gamma \max_{a'} q_{*}(S_{t+1},a')|S_t=s,A_t=a\right]
+			q_{*}(s,a) & = \E\left[R_{t+1}+\gamma \max_{a'} q_{*}(S_{t+1},a')\Big\vert S_t=s,A_t=a\right]
 		\end{split}
 	\end{equation*}
 	
