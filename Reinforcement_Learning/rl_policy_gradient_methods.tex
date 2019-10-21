@@ -112,7 +112,7 @@
 	which is also known as TD($\lambda$).
 	\item A lower $\lambda$ reduces the variance but increases the bias (TD). Similarly, choosing a high $\lambda$ gives a low bias but high variance (MC).
 	
-	However, a disadvantage of using $\lambda$ instead of a fixed $n$ is that we need to run a full episode before we can calculate any advantage.
+	However, a disadvantage of using $\lambda$ instead of a fixed $n$ is that we need to run a full episode before we can calculate any advantage. We can overcome this issue by using eligibility traces where we update each state by its already known advantage factors of an episode, and continue doing so while following the trajectory.
 	\item This approach can again be used in combination with many different optimization techniques, like using TRPO (see next section). 
 \end{itemize}
 \subsection{Higher-order Policy Search Methods}
@@ -122,8 +122,8 @@
 	\item To find the next optimal value, we have to solve the following equation for the step we take, namely $\theta^{*}-\theta_0$ ($\theta^{*}$ next value), such that $d\theta^T d\theta=c$:
 	\begin{equation*}
 		\begin{split}
-			\theta^{*}-\theta_0 & = \max_{d\theta} J(\theta_0 + d\theta)\\
-			& \approx \max_{d\theta} J(\theta_0) + (\nabla_{\theta} J(\theta))^T d\theta \hspace{5mm}\text{(Taylor expansion)}\\
+			\theta^{*}-\theta_0 & = \arg\max_{d\theta} J(\theta_0 + d\theta)\\
+			& \approx \arg\max_{d\theta} J(\theta_0) + (\nabla_{\theta} J(\theta))^T d\theta \hspace{5mm}\text{(Taylor expansion)}\\
 			& \propto \nabla_{\theta} J(\theta)
 		\end{split}
 	\end{equation*}
@@ -165,7 +165,7 @@
 	\item Now, we reconsider our update step:
 	\begin{equation*}
 		\begin{split}
-			\theta^{*}-\theta_0 & \approx \max_{d\theta} J(\theta_0) + (\nabla_{\theta} J(\theta))^T d\theta \hspace{5mm}\text{(Taylor expansion)}\\
+			\theta^{*}-\theta_0 & \approx \arg\max_{d\theta} J(\theta_0) + (\nabla_{\theta} J(\theta))^T d\theta \hspace{5mm}\text{(Taylor expansion)}\\
 		\end{split}
 	\end{equation*}
 	To take the maximum, we now also need to consider our constraint as Lagrangian:
