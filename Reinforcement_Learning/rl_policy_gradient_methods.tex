@@ -104,8 +104,8 @@
 \begin{itemize}
 	\item Let's reconsider the difference between actor-critic and actor-only approaches from a different perspective. Actor-critic bootstrap its estimate on the next value, which is very similar to TD(0) learning. Actor-only uses the sampled return, which is a Monte Carlo method. In value-based methods, we discussed that we can generalize TD(0) and Monte Carlo to $n$-step TD learning which we can do here similarly. This is again a trade-off between variance and bias. %  because as we have seen before, if $\hat{q}_{\bm{w}}$ has not fully converged (which is in practice mostly not the case), we get a biased estimate of our gradients.
 	\item The advantage for an $n$-step estimate is:
-	$$\hat{A}_t^n = r_t + \gamma r_{t+1} + ... + \gamma^n v(s_{t+n}) - v(s_t)$$
-	where $\delta_{t}$ is the TD error for time step $t$. If $\gamma=1$, we can rewrite it in terms of TD errors: $\hat{A}_t^n = \sum_{l=0}^{n-1}\delta_{t+l}$
+	$$\hat{A}_t^n = r_t + \gamma r_{t+1} + ... + \gamma^n v(s_{t+n}) - v(s_t) = \sum_{l=0}^{n-1}\gamma^{l}\delta_{t+l}$$
+	where $\delta_{t}$ is the TD error for time step $t$. 
 	 
 	However, we can also take a smoother version of $n$-step, where we take a weighted average of all the advantages:
 	$$\hat{A}_t^{GAE} = (1-\lambda)\left(\hat{A}_t^{(1)} + \lambda \hat{A}_t^{(2)} + \lambda^2 \hat{A}_t^{(2)} + ...\right) = \sum_{l=0}^{\infty} (\gamma \lambda)^{l}\delta_{t+l}$$

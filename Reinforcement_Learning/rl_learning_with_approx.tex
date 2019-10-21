@@ -99,9 +99,9 @@
 	$$\bm{w}_{t+1}=\bm{w}+\alpha\left[U_t - \hat{q}(S_t,A_t,\bm{w})\right]\nabla_{\bm{w}}\hat{q}(S_t,A_t,\bm{w})$$
 	where $U_t$ is our target, which is for one-step SARSA $U_t = R_t + \gamma \hat{q}(S_{t+1},A_{t+1},\bm{w})$.
 	As usual, we iterate over this update rule while setting our policy to $\epsilon$-greedy on $\hat{q}$.
-	\item In the \textbf{off-policy} case, we experience more problems. As we have a behavior policy $b$ and target policy $\pi$, we need to use importance weight to correct the target of the update:
-	$$\bm{w}_{t+1}=\bm{w}+\rho \alpha\left[U_t - \hat{q}(S_t,A_t,\bm{w})\right]\nabla_{\bm{w}}\hat{q}(S_t,A_t,\bm{w})$$
-	Although it increases variance, it is necessary to guarantee unbiased, correct estimates.
+	\item In the \textbf{off-policy} case, we experience more problems. As we have a behavior policy $b$ and target policy $\pi$, we often need to use importance weight to correct the target of the update:
+	$$\bm{w}_{t+1}=\bm{w}_{t}+\rho \alpha\left[U_t - \hat{q}(S_t,A_t,\bm{w})\right]\nabla_{\bm{w}}\hat{q}(S_t,A_t,\bm{w})$$
+	Although it increases variance, it is sometimes necessary to guarantee unbiased, correct estimates. However, note that in cases like Q-learning, where $U_t$ is independent of $b$, we might not have to consider the importance weights as $\rho=1$.
 	
 	The second issue is that we need to take the changed state distribution, $\mu_b$, into account. Consider for example the very simple MDP in Figure~\ref{fig:rl_approximation_value_based_offpolicy_divergence} for which we just want to estimate $v$ (policy evaluation). We assume the reward for any action to be $0$, and start with an initial value of $w=10$.
 		
