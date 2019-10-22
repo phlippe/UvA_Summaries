@@ -146,14 +146,14 @@
 	$$v_{t+n}(S_t) = v_{t+n-1}(S_t) + \alpha \left[G_{t:t+n}- v_{t+n-1}(S_t)\right]$$
 	\item Which $n$ works best, depends on the environment (see Section~\ref{sec:value_based_tabular_difference_TD_MC} for more detailed discussion)
 	\item To enable off-policy learning, we would require importance sampling as in MC which can introduce additional variance. However, there is an alternative in $n$-step, namely the $n$-step \textbf{Tree Backup} algorithm
-	\item In $n$-step tree backup, we take the next $n$ steps into account, but at each action decision, we also look at all other actions. As visualized in Figure~\ref{fig:rl_tabular_methods_n_step_tree_backup}, we now have multiple leaf nodes. At each of the leafs, we use our estimates.
+	\item In $n$-step tree backup, we take the next $n$ steps into account, but at each action decision, we also look at all other actions. As visualized in Figure~\ref{fig:rl_tabular_methods_n_step_tree_backup}, we now have multiple leaf nodes. At each of the leaves, we use our estimates.
 	\begin{figure}[ht!]
 		\centering
 		\includegraphics[width=0.1\textwidth]{figures/rl_tabular_methods_n_step_tree_backup.png}
 		\caption{3-step tree backup as a backup diagram (see Section~\ref{sec:value_based_tabular_backup_diagram}).}
 		\label{fig:rl_tabular_methods_n_step_tree_backup}
 	\end{figure}
-	\item Even if we sample from a behavior policy $p$, we can re-weight each of the leafs contribution by the target policy $\pi$. For example, at $S_{t+1}$, the leafs are weighted by $\pi(A_1|S_{t+1})$ and $\pi(A_3|S_{t+1})$, while the main sample trajectory gets a factor $\pi(A_2|S_{t+1})$. The next leafs then have $\pi(A_1|S_{t+2})\pi(A_2|S_{t+1})$ etc.
+	\item Even if we sample from a behavior policy $p$, we can re-weight each of the leaves' contribution by the target policy $\pi$. For example, at $S_{t+1}$, the leaves are weighted by $\pi(A_1|S_{t+1})$ and $\pi(A_3|S_{t+1})$, while the main sample trajectory gets a factor $\pi(A_2|S_{t+1})$. The next leaves then have $\pi(A_1|S_{t+2})\pi(A_2|S_{t+1})$ etc.
 	\item For a 1-step tree backup, we get the same return estimate as for expected SARSA:
 	$$G_{t:t+1}=R_{t+1}+\sum_a \pi(a|S_{t+1})Q_t(S_{t+1},a)$$
 	If we have $n$ steps, we can calculate our return estimate recursively:
