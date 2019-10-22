@@ -164,7 +164,7 @@
 	
 	Semi-gradient TD is converging to the point where $PBE=0$ as we reach a fix-point there. However, this does not have to be where the minimum Bellman error is reached because imagine $\delta_{\bm{w}}$ being orthogonal to $\bm{w}$-subspace. Then, the projected bellman error is 0, but without projection, we would continue changing $\bm{w}$, until we reach $\min \overline{\text{BE}}$.
 	
-	At the same time, even if we would reach $\min \overline{\text{BE}}$, it would most likely not be a optimum (i.e. gradients greater than zero) because the gradients can point to outside the representable $\bm{w}$-space (does not need to be orthogonal as before), and hence the projected Bellman error can be unequals zero.
+	At the same time, even if we would reach $\min \overline{\text{BE}}$, it would most likely not be a optimum (i.e. gradients greater than zero) because the gradients can point to outside the representable $\bm{w}$-space (does not need to be orthogonal as before), and hence the projected Bellman error can be unequal to zero.
 	
 	\item The last objective we consider here is the true-gradient TD error, meaning: $$\overline{\text{TDE}}(\bm{w})=\sum_{s\in\mathcal{S}}\mu(s)\E\left[\delta_t^2 |S_t=s,A_t\sim \pi\right] = \E_{b}[\rho_t \delta_t^2] \hspace{4mm}\text{(if we assume $\mu$ is under $b$)}$$
 	Following SGD updates, we get:
