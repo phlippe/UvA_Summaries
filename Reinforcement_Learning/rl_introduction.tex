@@ -35,7 +35,7 @@
 		\item If we assume that we can take as many actions as we want, we have the objective for infinite horizon: $\sum_{t=1}^{\infty} \gamma^{t}r_t$ where $\gamma\in [0,1]$ is a discount factor. Note that if we would not have a discount factor, we end up with infinite reward for any action whose reward has a mean greater than zero.
 		\item For generalization, we call $G_t=\sum_{k=0}^{\infty} \gamma^{k}R_{t+k+1}=R_{t+1}+\gamma G_{t+1}$ the \textbf{(discounted) return}, or cumulative reward, at time step $t$. Only if a episode terminates (meaning that we cannot play forever), a discount factor of $\gamma=1$ is allowed.
 	\end{itemize} 
-	\item A general trade-off in reinforcement learning is between \textbf{exploration} (i.e. trying new actions) and \textbf{exploitation} (i.e. taking best actions we know). If we perform too little exploration, we might overlook the best action, for example due to stochasticity of the reward. However, exploiting the best actions is likely to lead to the maximum rewards, so that with exploring, we ``loose'' possible rewards.
+	\item A general trade-off in reinforcement learning is between \textbf{exploration} (i.e. trying new actions) and \textbf{exploitation} (i.e. taking best actions we know). If we perform too little exploration, we might overlook the best action, for example due to stochasticity of the reward. However, exploiting the best actions is likely to lead to the maximum rewards, so that with exploring, we ``lose'' possible rewards.
 	
 	A general rule of thumb is: if we have much time left or are very uncertain about our current estimates, do more exploration. If we are limited on time, or are certain about our estimates, we should exploit more. 
 	
