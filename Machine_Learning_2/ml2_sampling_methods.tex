@@ -51,7 +51,7 @@
 		\label{fig:sampling_rejection_sampling}
 	\end{figure}
 	\item To show that we actually generate samples from $p(z)$, we can write down the probability for a value $z_i$ to be picked. First, the chance of $z_i$ being generated in first place is $q(z_i)$. Next, the chance of $z_i$ being accepted, is $\frac{\tilde{p}(z_i)}{\tilde{q}(z_i)}$. Together, we get the probability of $z_i$:
-	$$\hat{p}(z_i) = q_(z_i)\frac{\tilde{p}(z_i)}{\tilde{q}(z_i)} \propto p(z_i)$$
+	$$\hat{p}(z_i) = q(z_i)\frac{\tilde{p}(z_i)}{\tilde{q}(z_i)} \propto p(z_i)$$
 	Hence, we actually generate samples from $z_i$ although we initially sample from $q(z)$
 	\item One requirement of rejection sampling to work well is that the area between $\tilde{p}(z)$ and $\tilde{q}(z)$ is small. The efficience of this sampler can be measured by the acceptance rate, which is $\E_{z_i\sim q}\left[\frac{\tilde{p}(z_i)}{\tilde{q}(z_i)} \right]$. If this value is low, it means that a lot of samples are rejected, hence the sampling process takes longer. This gets especially critical in higher dimensions as we need to make sure that \textit{for all} $z_i$, $\tilde{q}(z_i)$ is greater than $\tilde{p}(z_i)$. Finding a simple distribution in high dimensions that fulfills this requirement is often not trivial
 \end{itemize}

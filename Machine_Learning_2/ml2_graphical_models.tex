@@ -559,7 +559,7 @@
 	\begin{equation*}
 	\tcbox[nobeforeafter]{\(
 		\begin{split}
-			\textbf{Factor$\to$Variable:} & \hspace{2mm} \mu_{\alpha\to i}(x_i)=\sum_{\bm{x}_{\alpha}} f_{\alpha}(\bm{x}_{\alpha})\prod_{j\in \alpha\setminus i}\mu_{j\to\alpha}(x_j)\\
+			\textbf{Factor$\to$Variable:} & \hspace{2mm} \mu_{\alpha\to i}(x_i)=\sum_{\bm{x}_{\alpha\setminus i}} f_{\alpha}(\bm{x}_{\alpha})\prod_{j\in \alpha\setminus i}\mu_{j\to\alpha}(x_j)\\
 			& \text{If $\alpha$ leaf node:} \hspace{2mm}\mu_{\alpha\to i}(x_i)=\sum_{\bm{x}_{\alpha}} f_{\alpha}(\bm{x}_{\alpha})\\
 			\textbf{Variable$\to$Factor:} & \hspace{2mm} \mu_{j\to \alpha}(x_j)=\prod_{\beta\in \text{ne}(j)\setminus \alpha}\mu_{\beta\to j}(x_j)\\
 			&\text{If $j$ leaf node:} \hspace{2mm}\mu_{j\to \alpha}(x_j)=1
@@ -634,7 +634,7 @@
 	\tcbox[nobeforeafter]{\(
 		\begin{split}
 		\textbf{Factor$\to$Variable:} & \hspace{2mm} \nu_{\alpha\to i}(x_i)=\max_{\bm{x}_{\alpha\setminus i}} \log f_{\alpha}(\bm{x}_{\alpha}) + \sum_{j\in \alpha\setminus i}\nu_{j\to\alpha}(x_j)\\
-		& \text{If $\alpha$ leaf node:} \hspace{2mm}\nu_{\alpha\to i}(x_i)=\max_{\bm{x}_{\alpha\setminus i}} f_{\alpha}(\bm{x}_{\alpha})\\
+		& \text{If $\alpha$ leaf node:} \hspace{2mm}\nu_{\alpha\to i}(x_i)=\max_{\bm{x}_{\alpha\setminus i}}\log  f_{\alpha}(\bm{x}_{\alpha})\\
 		\textbf{Variable$\to$Factor:} & \hspace{2mm} \nu_{j\to \alpha}(x_j)=\sum_{\beta\in \text{ne}(j)\setminus \alpha}\nu_{\beta\to j}(x_j)\\
 		&\text{If $j$ leaf node:} \hspace{2mm}\nu_{j\to \alpha}(x_j)=0
 		\end{split}

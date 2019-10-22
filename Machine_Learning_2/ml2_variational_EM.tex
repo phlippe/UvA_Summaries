@@ -28,7 +28,7 @@
 	\begin{description}
 		\item[E-step] Find the posterior distribution $p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}})$ where $\bm{\theta}^{\text{old}}$ means that we fix the other parameters
 		\item[M-step] Optimize the log-likelihood with respect to parameters $\bm{\theta}$ while keeping the posterior fixed
-		$$\bm{\theta}^{\text{new}} = \arg\max_{\bm{\theta}} \mathcal{Q}(\bm{\theta}, \bm{\theta}^{\text{old}}) = \arg\max_{\bm{\theta}} \sum_{\bm{Z}} p(\bm{Z}|\bm{X},\bm{\theta}) \ln p(\bm{X}, \bm{Z}|\bm{\theta})$$
+		$$\bm{\theta}^{\text{new}} = \arg\max_{\bm{\theta}} \mathcal{Q}(\bm{\theta}, \bm{\theta}^{\text{old}}) = \arg\max_{\bm{\theta}} \sum_{\bm{Z}} p(\bm{Z}|\bm{X},\bm{\theta}^{\text{old}}) \ln p(\bm{X}, \bm{Z}|\bm{\theta})$$
 	\end{description}
 	\item In case we want to find the MAP instead of the MLE, we simply have to add the prior term $\ln p(\bm{\theta})$ to $\mathcal{Q}(\bm{\theta}, \bm{\theta}^{\text{old}})$ in the M-step 
 \end{itemize}

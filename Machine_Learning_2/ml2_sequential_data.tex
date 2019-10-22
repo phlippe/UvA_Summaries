@@ -93,7 +93,7 @@
 	
 	The mapping between latent and observed variable is described as emission probabilities, which we can write as $p(\bm{x}_n|\bm{z}_n,\bm{\phi})=\prod_{k=1}^{K} p(\bm{x}_n|\bm{\phi}_k)^{z_{nk}}$
 	
-	\item For optimizing the parameters, we again use the EM algorithm
+	\item For optimizing the parameters, we again use the EM algorithm because otherwise we would need to calculate $p(\bm{X}|\bm{\theta})=\sum_Z p(\bm{X},\bm{Z}|\bm{\theta})$. The sum has a complexity which increases exponentially with the number of hidden variables, and makes it inefficient for large $N$.
 	
 \end{itemize}
 \subsubsection{Maximum Likelihood for HMM}
@@ -170,7 +170,7 @@
 		Performing the maximization, we get:
 		\begin{equation*}
 			\begin{split}
-				\pi_k^{\text{new}} & =\frac{\gamma(z_{1k})}{\sum_{k=1}^{K}\gamma(z_{1j})}, \hspace{5mm} A_{jk} = \frac{\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nk})}{\sum_{l=1}^{K}\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nl})}
+				\pi_k^{\text{new}} & =\frac{\gamma(z_{1k})}{\sum_{j=1}^{K}\gamma(z_{1j})}, \hspace{5mm} A_{jk} = \frac{\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nk})}{\sum_{l=1}^{K}\sum_{n=2}^{N} \zeta(z_{n-1,j}, z_{nl})}
 			\end{split}
 		\end{equation*}
 		Solving the same for the parameter $\bm{\phi}$ depends on the form of emission probability that was chosen. For example, if we have a Gaussian density $p(\bm{x}|\bm{\phi}_k)$, the optimized parameters are:
