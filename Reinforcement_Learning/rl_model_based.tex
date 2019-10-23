@@ -76,7 +76,7 @@
 	\begin{itemize}
 		\item The priority in the queue is given by the TD error we would get at the time we add the state in the queue. This supports that states with high errors, i.e. wrong estimates, are updated first.
 		\item To limit the queue, we can define a threshold $\theta$ over which the TD error has to be to add a state in the queue
-		\item In the simulation step (indirect RL), we perform updates based on the queue until either the queue is empty, or we reached a maximum of $n$ steps. If the queue is non-empty, it is kept for next iteration as well.
+		\item In the simulation step (indirect RL), we perform updates based on the queue until either the queue is empty, or we reached a maximum of $n$ steps. If the queue is non-empty, it is kept for the next iteration as well.
 		\item For this model, we require at least a sample/generative model because we need to be able to start at any state-action pair
 		\begin{figure}[ht!]
 			\centering
