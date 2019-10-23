@@ -148,7 +148,7 @@
 			& = \frac{1}{2}d\theta^T (\nabla_{d\theta}^2\text{EKL})(\theta_0)d\theta\\
 		\end{split}
 	\end{equation*}
-	\item So, to obtain the optimal parameter $c$, we need ot calculate the Hessian $\nabla_{d\theta}^2\text{EKL}$ at point $\theta_0$. This is also known as the Fisher information matrix (i.e. how much information does $\pi$ is changed by $\theta$), and can be calculated by:
+	\item So, to obtain the optimal parameter $c$, we need to calculate the Hessian $\nabla_{d\theta}^2\text{EKL}$ at point $\theta_0$. This is also known as the Fisher information matrix (i.e. how much information is $\pi$ changed by $\theta$), and can be calculated by:
 	\begin{equation*}
 		\begin{split}
 			F & = \nabla_{d\theta}^2\text{EKL} = \E_{s}\left[\nabla_{d\theta}^2 D_{KL}\left(\pi(a|s;\theta_0)||\pi(a|s;\theta)\right)\right]\\
