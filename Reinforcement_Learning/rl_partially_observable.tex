@@ -63,7 +63,7 @@
 \subsection{Partial observability and exploration}
 \begin{itemize}
 	\item We have seen that Markov functions rely on uncertainty of the latent state, which can be considered as trying to take the actions that make you most certain about the latent state (while maximizing the reward).
-	\item Hence, we can also consider this as a exploration strategy. If we consider knowledge about our environment which is the set of states and action, we can try to learn the transition probabilities as well by adding them to our state. This leads us to a \textit{hyperstate}:
+	\item Hence, we can also consider this as an exploration strategy. If we consider knowledge about our environment which is the set of states and action, we can try to learn the transition probabilities as well by adding them to our state. This leads us to a \textit{hyperstate}:
 	$$x_{\text{POMDP}} = (s_{\text{MDP}}, \text{transition}, \text{rewards})$$
 	where we consider a fully observable environment as partially observable by adding the transition and reward distributions. Now, we can simply apply POMDP techniques as we have discussed before.
 	\item For example, consider a simple environment with 2 states and 2 actions each. Our transition probabilities can be defined as a vector:
