@@ -72,7 +72,7 @@
 	With this rewritten gradient, we give credit for $r_t$ only those actions that came \textit{before} $t$
 	\item This reduces the variance from REINFORCE, and can be combined with baselines etc. However, keep in mind that we still have a Monte Carlo sample, so that there remains a significant variance
 \end{itemize}
-\subsubsection{PGPE}
+\subsubsection{Policy Gradients with Parameter-based Exploration (PGPE)}
 \begin{itemize}
 	\item Even when sampling from stochastic policies during a rollout, the variation and exploration we get is mostly fairly limited. Furthermore, we end up with small perturbations (choose "left"-"right"-"left" in CartPole) which are less likely to be repeated by a deterministic policy, and can damage e.g. a robot in real-life situations
 	\item Instead, we rather \textit{sample} a deterministic policy $\pi_{\theta}$ from a distribution $p(\theta|\nu)$.  The advantage is that if we now see a state twice, we can guarantee that our policy takes a same action although we are still exploring/stochastic. 
