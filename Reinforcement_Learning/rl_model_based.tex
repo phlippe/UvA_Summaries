@@ -193,5 +193,5 @@
 		\caption{Self-play RL in AlphaGo zero.}
 		\label{fig:rl_model_based_alphago_zero_selfplay}
 	\end{figure}
-	\item Nevertheless, the training might not be 100\% stable. In a small amount of times, it can happen that the network diverges. To prevent this, we evaluate the network every $n$ steps by playing against itself/an older version of itself. If the policy did not improve (i.e. loosing more games than winning against older version), we throw away the new model and start again from the old weights. 
+	\item Nevertheless, the training might not be 100\% stable. In a small amount of times, it can happen that the network diverges. To prevent this, we evaluate the network every $n$ steps by playing against itself/an older version of itself. If the policy did not improve (i.e. losing more games than winning against older version), we throw away the new model and start again from the old weights. 
 \end{itemize}
