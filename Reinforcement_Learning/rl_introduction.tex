@@ -93,7 +93,7 @@
 	
 	\item The first approach of finding the optimal policy is \textbf{policy iteration}. It combines two steps:
 	\begin{itemize}
-		\item \textit{Policy evaluation}: given a policy $\pi$, we try to find the corresponding value function $v_{\pi}$. We do this by performing the update $v(s)=\E[R_{t+1}+\gamma v(s)]$ until the values converge. Note that we can evaluate the expectation as we know $\pi$ and the MDP dynamics $p(s',r|s,a)$
+		\item \textit{Policy evaluation}: given a policy $\pi$, we try to find the corresponding value function $v_{\pi}$. We do this by performing the update $v(s)=\E[R_{t+1}+\gamma v(s')]$ until the values converge. Note that we can evaluate the expectation as we know $\pi$ and the MDP dynamics $p(s',r|s,a)$
 		\item \textit{Policy improvement}: given the value function $v_{\pi}$, we try to find a new policy for which we know that $\forall s, v_{\pi'}(s)\geq v_{\pi}(s)$. We can do that by taking the argmax over actions in each state.
 	\end{itemize}
 	Policy iteration performs these two in a loop until the policy is not changed anymore in the improvement step. It is guaranteed to converge to the optimal policy $\pi$.

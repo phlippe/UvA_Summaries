@@ -148,7 +148,7 @@
 			& = \frac{1}{2}d\theta^T (\nabla_{d\theta}^2\text{EKL})(\theta_0)d\theta\\
 		\end{split}
 	\end{equation*}
-	\item So, to obtain the optimal parameter $c$, we need ot calculate the Hessian $\nabla_{d\theta}^2\text{EKL}$ at point $\theta_0$. This is also known as the Fisher information matrix (i.e. how much information does $\pi$ is changed by $\theta$), and can be calculated by:
+	\item So, to obtain the optimal parameter $c$, we need to calculate the Hessian $\nabla_{d\theta}^2\text{EKL}$ at point $\theta_0$. This is also known as the Fisher information matrix (i.e. how much information of $\pi$ is changed by $\theta$), and can be calculated by:
 	\begin{equation*}
 		\begin{split}
 			F & = \nabla_{d\theta}^2\text{EKL} = \E_{s}\left[\nabla_{d\theta}^2 D_{KL}\left(\pi(a|s;\theta_0)||\pi(a|s;\theta)\right)\right]\\
@@ -156,8 +156,8 @@
 		\end{split}
 	\end{equation*}
 	$$\implies F = \begin{bmatrix}
-	\E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]^2 & \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right] & ...\\
-	\E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right] & \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]^2 & ...\\
+	\E_a\left[\left(\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right)^2\right] & \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s) \cdot \nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right] & ...\\
+	\E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s) \cdot \nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right] & \E_a\left[\left(\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right)^2\right] & ...\\
 	% \E_a\left[\nabla_{d\theta_1} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_3} \log \pi_{\theta}(a|s)\right] & \E_a\left[\nabla_{d\theta_2} \log \pi_{\theta}(a|s)\right]\cdot \E_a\left[\nabla_{d\theta_3} \log \pi_{\theta}(a|s)\right] & ...\\
 	\vdots & \vdots & \ddots
 	\end{bmatrix}$$
@@ -199,7 +199,7 @@
 		\item Faster convergence and less training time
 		\item Is an adaptation on top of standard policy gradient, so we can use any of the previous methods with all additions/tricks we want
 	\end{itemize}
-	However, the biggest drawback is that we have to calculate the Fisher information matrix, which is known for standard distributions like Gaussians, but might be harder to determine for other cases, especially if we want to use a neural network (can be approximated with conjugate gradient algorithm). It also keeps the disadvantages of the other policy gradient methods, namely high variance and namely still slower convergence compared to value-based methods.
+	However, the biggest drawback is that we have to calculate the Fisher information matrix, which is known for standard distributions like Gaussians, but might be harder to determine for other cases, especially if we want to use a neural network (can be approximated with conjugate gradient algorithm). It also keeps the disadvantages of the other policy gradient methods, namely high variance and still slower convergence compared to value-based methods.
 \end{itemize}
 \subsubsection{Trust region policy optimization}
 \begin{itemize}
@@ -211,7 +211,7 @@
 		\item Maximize lower bound (which guarantees improvement on exact function) by e.g. SGD again
 	\end{enumerate} 
 	\item The region where we assume our approximation to be valid, is called \textit{trust region}
-	\item Figure~\ref{fig:rl_policy_gradients_TRPO_vs_NPG} compares the ideas of NPG and TRPO visually. NPG takes a linear approximation of $J$ at a point, and limits the step size by approximating the KL divergence. TRPO however designs a lower bound which is strictly lower than the "true" function. It is a combination of an approximation of $J$, and a penalty term for big chances in the policy 
+	\item Figure~\ref{fig:rl_policy_gradients_TRPO_vs_NPG} compares the ideas of NPG and TRPO visually. NPG takes a linear approximation of $J$ at a point, and limits the step size by approximating the KL divergence. TRPO however designs a lower bound which is strictly lower than the "true" function. It is a combination of an approximation of $J$, and a penalty term for big changes in the policy 
 	\begin{figure}[ht!]
 		\centering
 		\includegraphics[width=0.55\textwidth]{figures/rl_policy_gradients_TRPO_vs_NPG.png}
