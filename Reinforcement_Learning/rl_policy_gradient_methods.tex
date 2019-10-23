@@ -22,7 +22,7 @@
 	\item The Policy Gradient Theorem says that the gradients of $\nabla_{\theta}J(\theta)$ are proportional to:
 	$$\nabla_{\theta}J(\theta) \propto \sum_s \mu(s) \sum_a \nabla_{\theta} \pi_{\theta}(a|s)q_{\pi_{\theta}}(s,a) $$
 	Note that we are not interested in the constant proportionality factor because we will absorb it anyways in the learning rate
-	\item For deriving the REINFORCE algorithm, we follow the approach of the lecture slides. Let's define $\tau$ as a trajectory that starts from $s_0$ and ends in a arbitrary terminal state. Then, the expected return is the expected return over these trajectories. Using this equality, we can derive the gradients as:
+	\item For deriving the REINFORCE algorithm, we follow the approach of the lecture slides. Let's define $\tau$ as a trajectory that starts from $s_0$ and ends in an arbitrary terminal state. Then, the expected return is the expected return over these trajectories. Using this equality, we can derive the gradients as:
 	\begin{equation*}
 		\begin{split}
 			\nabla_{\theta}J(\theta) & =  \nabla_{\theta} \E_{\tau}[G(\tau)]\\
