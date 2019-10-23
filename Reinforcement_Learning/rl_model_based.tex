@@ -87,7 +87,7 @@
 	\item An alternative is performing \textbf{trajectory sampling} where we start from the start state (or sample one if multiple exist), and follow our current policy. 
 	\begin{itemize}
 		\item While updating the more frequently visited states, we have the disadvantage of limited exploration because we highly focus on states of our distribution
-		\item Hence, if we have a (close to) deterministic environment, trajectory sampling might work well, but in a stochastic environment where we continuously have to explore, it might perform worse than uniformly sample any state-action pair 
+		\item Hence, if we have a (close to) deterministic environment, trajectory sampling might work well, but in a stochastic environment where we continuously have to explore, it might perform worse than uniformly sampling any state-action pair 
 		\item For this method, we only require a trajectory model, making it less complex
 	\end{itemize}
 \end{itemize}
