@@ -106,7 +106,7 @@
 \subsection{Model-based policy search}
 \begin{itemize}
 	\item In the previous discussion, we mainly focused on value-based updates. However, we could of course use policy-based methods as well.
-	\item Again, the decision of whether to use policy-based or value-based methods is based on multiple decisions. For example, if we need to learn a stochastic policy, or we have continuous actions, then we might want to use policy-based methods. In the case that we have discrete actions and aim for learning a deterministic, greedy policy, value-based methods are more suited because for policy gradient we require the policy to be smoothly changable/differentiable.
+	\item Again, the decision of whether to use policy-based or value-based methods is based on multiple decisions. For example, if we need to learn a stochastic policy, or we have continuous actions, then we might want to use policy-based methods. In the case that we have discrete actions and aim for learning a deterministic, greedy policy, value-based methods are more suited because for policy gradient we require the policy to be smoothly changeable/differentiable.
 	\item Let's assume that the reward is known for now (e.g. we have defined the reward for a problem by our own). Then, we could reformulate the transition function as:
 	$$s_{t+1} = f(s_t, a_t) + w$$
 	where $f(s_t, a_t)$ is a deterministic function that maps a state-action pair to a new state, and $w$ is additive noise (e.g. Gaussian for continuous states). To ensure this formulation to work well, we would require a mostly deterministic environment, as otherwise $f(s_t, a_t)$ cannot model the different outcomes.
