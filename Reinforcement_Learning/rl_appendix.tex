@@ -12,7 +12,7 @@
 		\item Highly complex tasks show whether a method scales with having lots of compute and training data available
 		\item Toy examples can point out difference between methods, so it is often good to have both a toy example, and a more complex, practical one
 	\end{itemize}
-	\item[Which parameters and architectures to test?] RL have been shown to be very sensitive to the selection of hyperparameters. Hence, you should also spend similar tuning efforts an \underline{all} your experiments, including the baseline, to ensure a fair comparison.
+	\item[Which parameters and architectures to test?] RL have been shown to be very sensitive to the selection of hyperparameters. Hence, you should also spend similar tuning efforts on \underline{all} your experiments, including the baseline, to ensure a fair comparison.
 	\item[Does a random seed affect my experiments?] Due to the high variance of the RL methods, we need to average all runs over sufficient amount of seeds. Furthermore, if we perform a gridsearch, we should always keep the seeds fixed for all hyperparameter settings, but in the final test, use a different set of random seeds to prevent overfitting on seeds.
 	\item[What to report?] Next to the mean and/or median performance, the spread of the result should be shown as well. Furthermore, it should represent what you want to show. For example, if we want to underline that a new method learns faster, we should show a plot over learning iterations instead of just the final performance.
 \end{description}
