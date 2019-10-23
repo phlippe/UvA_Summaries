@@ -43,7 +43,7 @@
 	where $s(x)$ is the old belief (i.e. belief over $x$ from last step). We can further define $p(o'|a,x')$ as the \underline{observation model} (i.e. what do I see from the latent space), and $p(x'|x,a)$ as the \underline{transition model} (i.e. how likely is it to move from one latent state to another). If we know these model dynamics by a full model description (or can estimate them), we have as state the probability distribution over latent state $x$.
 	
 	This method is the classical approach for POMDPs, as it is compact, can be updated recursively and is easily interpretable by a human. However, the disadvantages are that we need the underlying model (not always given), and that it is only feasible for a discrete latent state (otherwise sums become integrals etc.).
-	\item As last example, we can consider the obvious approach of determining all the observation probabilities:
+	\item As a last example, we can consider the obvious approach of determining all the observation probabilities:
 	$$f(h)=\begin{bmatrix}
 	f_{o_1a_1}(h)\\ f_{o_1a_2}(h)\\\vdots\\f_{o_2a_1}(h)\\\vdots\\
 	\end{bmatrix}\hspace{5mm}\text{where}\hspace{5mm}f_{oa}(h)=\Prob{O_{t+1}=o|H=h,A_t=a}$$
