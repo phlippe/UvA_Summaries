@@ -15,12 +15,12 @@
 	$$f(H_t)=f(H'_t)\implies \Prob{O_{t+1}=o|H=H_t,A_t=a}=\Prob{O_{t+1}=o|H=H'_t,A_t=a}$$
 	which means in textual form: if the representation of two histories are the same, then the expectation of the next observation is the same for both histories. Hence, we would also choose the same action, which leads to the conclusion, that the optimal policy can be found solely on $f$.
 	
-	A function that fulfills this condition is called \textit{Markov function}. For any function which is not Markov, we can only find an approximate optimal policy, but often not the optimal itself.
-	\item Which function is Markov depends highly on the environment, and will be discussed next.
+	A function that fulfills this condition is called \textit{Markov function}. For any function which is not Markovian, we can only find an approximate optimal policy, but often not the optimal itself.
+	\item Which function is Markovian depends highly on the environment, and will be discussed next.
 \end{itemize}
 \subsection{Markov functions and histories}
 \begin{itemize}
-	\item First, let's consider what we need to deal with a partially observable environment. Besides the environment and our policy-/value-based approach, we also have a state-update function (see Figure~\ref{fig:rl_partially_observability_architecture}). Our goal is to find a state-update function which is Markov and efficient/compact.
+	\item First, let's consider what we need to deal with a partially observable environment. Besides the environment and our policy-/value-based approach, we also have a state-update function (see Figure~\ref{fig:rl_partially_observability_architecture}). Our goal is to find a state-update function which is Markovian and efficient/compact.
 	
 	\begin{figure}[ht!]
 		\centering
@@ -35,7 +35,7 @@
 	\item We can define an probability distribution over the latent space $X$, and try to do Bayesian inference (i.e. finding the posterior). This is done by calculating a \textbf{belief state}:
 	\begin{equation*}
 		\begin{split}
-			s'(x)=p(x'|o',a,s)& =\frac{p(o'|x',a,s)p(x'|a,s)}{p(o'|a,s)}\\
+			s'(x')=p(x'|o',a,s)& =\frac{p(o'|x',a,s)p(x'|a,s)}{p(o'|a,s)}\\
 			& = \frac{p(o'|x',a)p(x'|a,s)}{p(o'|a,s)}\hspace{5mm}\text{(removing $s$ as $x'$ is given as true state)}\\
 			& = \frac{p(o'|a,x')\overbrace{\sum_x p(x'|x,a)s(x)}^{=p(x'|a,s)}}{\sum_{x'}p(o'|a,x')\sum_x p(x'|x,a)s(x)}
 		\end{split}
@@ -63,12 +63,17 @@
 \subsection{Partial observability and exploration}
 \begin{itemize}
 	\item We have seen that Markov functions rely on uncertainty of the latent state, which can be consider as trying to take the actions that make you most certain about the latent state (while maximizing the reward).
-	\item Hence, we can also consider this as a exploration strategy. If we consider knowledge about our environment which is the set of states and action, we can try to learn the transition probabilities as well by adding them to our state. This leads us to a \textit{hyperstate}:
+	\item Hence, we can also consider this as a exploration strategy. If we assume to know the set of states and action of our environment, we can try to learn the transition probabilities as well by adding them to our state. This leads us to a \textit{hyperstate}:
 	$$x_{\text{POMDP}} = (s_{\text{MDP}}, \text{transition}, \text{rewards})$$
-	where we consider a fully observable environment as partially observable by adding the transition and reward distributions. Now, we can simply apply POMDP techniques as we have discussed before.
+	where we consider a fully observable environment as partially observable by adding the transition and reward distributions. Now, we can simply apply POMDP techniques as we have discussed before, where $p(x'|a,x)$ is now modeled by our transition parameters $\theta$.
 	\item For example, consider a simple environment with 2 states and 2 actions each. Our transition probabilities can be defined as a vector:
-	$$p=(p_{11},p_{12},p_{21},p_{22})$$
-	where for a prior, we assume a uniform distribution. By interaction, we change our belief towards what we have observed.
+	$$\theta=(p_{11},p_{12},p_{21},p_{22})$$
+	where for a prior, we assume a uniform distribution. By interaction, we change our belief towards what we have observed by using Bayes:
+	$$p(\theta | x',x,a) = \frac{p(x'|x,a,\theta)p(\theta)}{\int_{\theta} p(x'|x,a,\theta)p(\theta)d\theta}$$
+	So, if we observe $x'=s_1$, $x=s_1$, $a=1$, our new belief over $p_{11}$ is (all other stay the same):
+	$$p(p_{11}|x'=s_1,x=s_1,a=1)=\frac{p(x'=s_1|x=s_1,a=1,p_{11})p(p_{11})}{\int_{\theta} p(x'=s_1|x=s_1,a=1,p_{11})p(p_{11})dp_{11}} = \frac{p_{11} \cdot 1}{1/2} = 2p_{11}$$
+	Hence, we expect to go in at least $2/3$ of the cases from $s_1$ to $s_1$ if we take action $1$. If we observe now again the same combination, we get:
+	$$p(p_{11}|x'_2=s_1,x_2=s_1,a_2=1)=\frac{p(x'=s_1|x=s_1,a=1,p_{11})p(p_{11}|x_1,x_1',a_1)}{\int_{\theta} p(x'_2=s_1|x_2=s_1,a_2=1,p_{11})p(p_{11}|x_1,x_1',a_1)dp_{11}} = \frac{2p_{11} \cdot p_{11}}{2/3} = 3p_{11}^2$$
 	\item Now, an optimal policy will take the uncertainty of the transition probabilities in account, and tries to maximizes the expected return. This leads to an optimal trade-off between exploration and exploitation.
 	\item However, keep in mind that we have $|\mathcal{S}|^{|\mathcal{A}|}$ transition probabilities to learn, which can be too large for certain environments. Hence, we might have to consider using approximations again.
 \end{itemize}
