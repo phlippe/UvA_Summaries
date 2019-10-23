@@ -56,7 +56,7 @@
 	\item Alternatively, we can also consider non-Markov functions which cannot guarantee to find the optimal policy, but at least an approximate one
 	\item The simplest method here is just using the last state, $S_t=O_t$. However, this might not contain all the information we need (e.g. in Atari games, movement cannot be captured), and is often not compact (still have the whole screen)
 	
-	A slight improvement is stacking a few observations, as in Atari games. This allows us to observe movement, but we still loose long-term dependencies.
+	A slight improvement is stacking a few observations, as in Atari games. This allows us to observe movement, but we still lose long-term dependencies.
 	\item We can also apply RNNs which take $O_t$ and $A_t$ as input including the last state $S_{t-1}$, and generate a new state $S_t$. This feature extractor can be learned end-to-end, and applied to a wide range of environments. However, the training might be a bit tricky in terms of hyperparameter tuning. 
 \end{itemize}
 
