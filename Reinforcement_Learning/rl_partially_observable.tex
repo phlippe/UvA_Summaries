@@ -32,7 +32,7 @@
 \subsubsection{Sample Markov functions}
 \begin{itemize}
 	\item The simplest function is the identity, meaning $s_t=H_t$. However, this is neither compact, nor can we use it in any tabular policy setting efficiently (all possible sequences must be stored).
-	\item We can define an probability distribution over the latent space $X$, and try to do Bayesian inference (i.e. finding the posterior). This is done by calculating a \textbf{belief state}:
+	\item We can define a probability distribution over the latent space $X$, and try to do Bayesian inference (i.e. finding the posterior). This is done by calculating a \textbf{belief state}:
 	\begin{equation*}
 		\begin{split}
 			s'(x)=p(x'|o',a,s)& =\frac{p(o'|x',a,s)p(x'|a,s)}{p(o'|a,s)}\\
