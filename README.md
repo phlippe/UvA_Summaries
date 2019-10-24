@@ -41,10 +41,8 @@ The PDF versions of the summaries can be found in the folder _Final_versions_. F
 ### Machine Learning 2 (UvA, 2019/20)
 * Semester 1, Period 1
 * Lecturer: Dr. Joris Mooij
-* Currently in progress...
 
 ### Reinforcement Learning (UvA, 2019/20)
 * Semester 1, Period 1
 * Lecturer: Dr. Herke van Hoof
-* Currently in progress...
 
