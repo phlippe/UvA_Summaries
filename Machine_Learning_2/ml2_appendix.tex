@@ -52,7 +52,7 @@ Some tricks to keep in mind:
 	x & x^2\\
 	\end{bmatrix}^T\\
 	& h(\bm{x}) = \frac{1}{\sqrt{2\pi}}\\
-	& g(\bm{\eta}) = \frac{1}{\sigma}\exp\left(-\frac{\eta_1^2}{4\cdot \eta_2}\right)\\
+	& g(\bm{\eta}) = (-2\eta_2)^{-\frac{1}{2}}\exp\left(\frac{\eta_1^2}{4\cdot \eta_2}\right)\\
 	\end{split}
 	\end{equation*}
 \end{fleqn}
@@ -68,7 +68,7 @@ Some tricks to keep in mind:
 				\bm{x} & \bm{x}\bm{x}^T\\
 			\end{bmatrix}^T\\
 			& h(\bm{x}) = (2\pi)^{-D/2}\\
-			& g(\bm{\eta}) = |-2\bm{\eta}_1| \cdot \exp\left(\frac{1}{4}\bm{\eta}_{1}^T\bm{\eta}_{2}^{-1}\bm{\eta}_{1}\right)\\
+			& g(\bm{\eta}) = |-2\bm{\eta}_2|^{-\frac{1}{2}} \cdot \exp\left(\frac{1}{4}\bm{\eta}_{1}^T\bm{\eta}_{2}^{-1}\bm{\eta}_{1}\right)\\
 		\end{split}
 	\end{equation*}
 \end{fleqn}
