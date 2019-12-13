@@ -32,7 +32,7 @@
 \subsubsection{Sample Markov functions}
 \begin{itemize}
 	\item The simplest function is the identity, meaning $s_t=H_t$. However, this is neither compact, nor can we use it in any tabular policy setting efficiently (all possible sequences must be stored).
-	\item We can define an probability distribution over the latent space $X$, and try to do Bayesian inference (i.e. finding the posterior). This is done by calculating a \textbf{belief state}:
+	\item We can define a probability distribution over the latent space $X$, and try to do Bayesian inference (i.e. finding the posterior). This is done by calculating a \textbf{belief state}:
 	\begin{equation*}
 		\begin{split}
 			s'(x')=p(x'|o',a,s)& =\frac{p(o'|x',a,s)p(x'|a,s)}{p(o'|a,s)}\\
@@ -40,10 +40,10 @@
 			& = \frac{p(o'|a,x')\overbrace{\sum_x p(x'|x,a)s(x)}^{=p(x'|a,s)}}{\sum_{x'}p(o'|a,x')\sum_x p(x'|x,a)s(x)}
 		\end{split}
 	\end{equation*}
-	where $s(x)$ is the old belief (i.e. belief over $x$ from last step). We can further define $p(o'|a,x')$ as the \underline{observation model} (i.e. what do I see from the latent space), and $p(x'|x,a)$ as the \underline{transition model} (i.e. how likely is it to move from one latent state the another). If we know these model dynamics by a full model description (or can estimate them), we have as state the probability distribution over latent state $x$.
+	where $s(x)$ is the old belief (i.e. belief over $x$ from last step). We can further define $p(o'|a,x')$ as the \underline{observation model} (i.e. what do I see from the latent space), and $p(x'|x,a)$ as the \underline{transition model} (i.e. how likely is it to move from one latent state to another). If we know these model dynamics by a full model description (or can estimate them), we have as state the probability distribution over latent state $x$.
 	
 	This method is the classical approach for POMDPs, as it is compact, can be updated recursively and is easily interpretable by a human. However, the disadvantages are that we need the underlying model (not always given), and that it is only feasible for a discrete latent state (otherwise sums become integrals etc.).
-	\item As last example, we can consider the obvious approach of determining all the observation probabilities:
+	\item As a last example, we can consider the obvious approach of determining all the observation probabilities:
 	$$f(h)=\begin{bmatrix}
 	f_{o_1a_1}(h)\\ f_{o_1a_2}(h)\\\vdots\\f_{o_2a_1}(h)\\\vdots\\
 	\end{bmatrix}\hspace{5mm}\text{where}\hspace{5mm}f_{oa}(h)=\Prob{O_{t+1}=o|H=h,A_t=a}$$
@@ -56,7 +56,7 @@
 	\item Alternatively, we can also consider non-Markov functions which cannot guarantee to find the optimal policy, but at least an approximate one
 	\item The simplest method here is just using the last state, $S_t=O_t$. However, this might not contain all the information we need (e.g. in Atari games, movement cannot be captured), and is often not compact (still have the whole screen)
 	
-	A slight improvement is stacking a few observations, as in Atari games. This allows us to observe movement, but we still loose long-term dependencies.
+	A slight improvement is stacking a few observations, as in Atari games. This allows us to observe movement, but we still lose long-term dependencies.
 	\item We can also apply RNNs which take $O_t$ and $A_t$ as input including the last state $S_{t-1}$, and generate a new state $S_t$. This feature extractor can be learned end-to-end, and applied to a wide range of environments. However, the training might be a bit tricky in terms of hyperparameter tuning. 
 \end{itemize}
 

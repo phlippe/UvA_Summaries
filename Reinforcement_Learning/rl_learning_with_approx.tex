@@ -25,8 +25,8 @@
 			\caption{Simple types of aggregations on a 2D state space. Note that we can combine aggregations, meaning that we use both a vertical and a horizontal aggregation.}
 			\label{fig:rl_approximate_value_based_aggregation}
 		\end{figure}
-		\item \textit{Radial basis functions} that takes the distance to a mean in the state space, e.g. $||\mu_i-s||$, as input features. We can model this by having multiple Gaussian, and weight their influence by $p(s)$. It enables us to have smoother transitions between close-by states, but might be problematic for far-away states. This is why it is often problematic in high-dimensional state spaces.
-		\item \textit{Fourier basis} where we take different frequencies to model $s$. This can provide a quite flexible feature set.
+		\item \textit{Radial basis functions} that take the distance to a mean in the state space, e.g. $||\mu_i-s||$, as input features. We can model this by having multiple Gaussians, and weight their influence by $p(s)$. It enables us to have smoother transitions between close-by states, but might be problematic for far-away states. This is why it is often problematic in high-dimensional state spaces.
+		\item \textit{Fourier basis} where we take different frequencies to model $s$. This can provide quite a flexible feature set.
 	\end{itemize}
 	Note that tabular RL can also be expressed by linear function approximation where we simply use $\bm{x}(s)=\left[\delta(s=s_1), \delta(s=s_2),...\right]$, and $\bm{w}$ therefore contains one parameter per state.
 	
@@ -37,7 +37,7 @@
 \end{itemize}
 \subsection{Prediction objective for on-policy prediction}
 \begin{itemize}
-	\item In the case that we perform a on-policy prediction (i.e. policy evaluation for a fixed policy), the state importance is based on the visit frequency of $\pi$. To arrive at $\mu$, we also have to distinguish between the tasks:
+	\item In the case that we perform an on-policy prediction (i.e. policy evaluation for a fixed policy), the state importance is based on the visit frequency of $\pi$. To arrive at $\mu$, we also have to distinguish between the tasks:
 	\begin{itemize}
 		\item If we have a continuing task (never ending), we get a stationary distribution at the point:
 		$$\mu_{\pi}(s)=\sum_{s'}\sum_{a}p(s|s',a)\pi(a|s')\mu_{\pi}(s')$$
@@ -164,7 +164,7 @@
 	
 	Semi-gradient TD is converging to the point where $PBE=0$ as we reach a fix-point there. However, this does not have to be where the minimum Bellman error is reached because imagine $\delta_{\bm{w}}$ being orthogonal to $\bm{w}$-subspace. Then, the projected bellman error is 0, but without projection, we would continue changing $\bm{w}$, until we reach $\min \overline{\text{BE}}$.
 	
-	At the same time, even if we would reach $\min \overline{\text{BE}}$, it would be most likely not be a optimum (i.e. gradients greater than zero) because the gradients can point to outside the representable $\bm{w}$-space (does not need to be orthogonal as before), and hence the projected Bellman error can be unequals zero.
+	At the same time, even if we would reach $\min \overline{\text{BE}}$, it would most likely not be a optimum (i.e. gradients greater than zero) because the gradients can point to outside the representable $\bm{w}$-space (does not need to be orthogonal as before), and hence the projected Bellman error can be unequal to zero.
 	
 	\item The last objective we consider here is the true-gradient TD error, meaning: $$\overline{\text{TDE}}(\bm{w})=\sum_{s\in\mathcal{S}}\mu(s)\E\left[\delta_t^2 |S_t=s,A_t\sim \pi\right] = \E_{b}[\rho_t \delta_t^2] \hspace{4mm}\text{(if we assume $\mu$ is under $b$)}$$
 	Following SGD updates, we get:
